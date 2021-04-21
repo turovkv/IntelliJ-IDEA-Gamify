@@ -1,19 +1,19 @@
 <idea-plugin>
     <id>com.github.turovkv.jetbrainsidefeaturesgamification</id>
-    <name>jetbrains-ide-features-gamification</name>
-    <vendor>turovkv</vendor>
+    <name>Features Gamification</name>
+    <vendor>Features Gamification</vendor>
+
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.MyProjectService"/>
+        <applicationService serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.SavedStatistics"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.turovkv.jetbrainsidefeaturesgamification.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+        <listener class="com.github.turovkv.jetbrainsidefeaturesgamification.listeners.FeatureUsageListener"
+                  topic="com.intellij.openapi.actionSystem.ex.AnActionListener"/>
     </applicationListeners>
 </idea-plugin>
