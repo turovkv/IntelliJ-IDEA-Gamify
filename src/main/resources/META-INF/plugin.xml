@@ -14,6 +14,6 @@
 
     <applicationListeners>
         <listener class="com.github.turovkv.jetbrainsidefeaturesgamification.listeners.FeatureUsageListener"
-                  topic="com.intellij.openapi.actionSystem.ex.AnActionListener"/>
+                  topic="com.intellij.ide.AppLifecycleListener"/>
     </applicationListeners>
 </idea-plugin>
