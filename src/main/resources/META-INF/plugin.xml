@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.github.turovkv.jetbrainsidefeaturesgamification</id>
-    <name>jetbrains-ide-features-gamification</name>
+    <name>Jetbrains-Ide-Features-Gamification</name>
     <vendor>turovkv</vendor>
 
     <!-- Product and plugin compatibility requirements -->
@@ -8,12 +8,23 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.MyProjectService"/>
+        <applicationService
+                serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.MyApplicationService"/>
+        <projectService
+                serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.MyProjectService"/>
     </extensions>
 
     <applicationListeners>
         <listener class="com.github.turovkv.jetbrainsidefeaturesgamification.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
+
+    <actions>
+        <action id="action.FutureGamificationButton"
+                class="com.github.turovkv.jetbrainsidefeaturesgamification.action.FutureGamificationButton"
+                text="FeatureGamification"
+                icon="icons.png">
+            <add-to-group group-id="ToolbarRunGroup" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>
