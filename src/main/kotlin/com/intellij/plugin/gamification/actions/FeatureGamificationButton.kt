@@ -2,6 +2,7 @@ package com.intellij.plugin.gamification.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.plugin.gamification.services.SavedStatistics
 import java.awt.BorderLayout
 import java.awt.EventQueue
 import java.lang.Exception
@@ -14,7 +15,6 @@ import javax.swing.border.EmptyBorder
 
 
 class FeatureGamificationButton : AnAction() {
-
     override fun actionPerformed(event: AnActionEvent) {
         EventQueue.invokeLater {
             try {
@@ -33,10 +33,6 @@ class ProgressBar : JFrame() {
     private class ProgressWorker(private val progress: JProgressBar) : SwingWorker<Void?, Int?>() {
         @Throws(Exception::class)
         override fun doInBackground(): Void? {
-            for (i in LOOP_LENGTH downTo 1) {
-                val progress = (100L * (LOOP_LENGTH - i) / LOOP_LENGTH).toInt()
-                publish(progress)
-            }
             return null
         }
 
@@ -46,23 +42,7 @@ class ProgressBar : JFrame() {
         }
 
         override fun done() {
-            progress.value = 100
-        }
-    }
-
-    companion object {
-        private const val LOOP_LENGTH: Long = 85000000
-
-        @JvmStatic
-        fun main(args: Array<String>) {
-            EventQueue.invokeLater {
-                try {
-                    val frame = ProgressBar()
-                    frame.isVisible = true
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
+            progress.value = SavedStatistics.get().getProgress()
         }
     }
 
