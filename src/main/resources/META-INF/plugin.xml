@@ -8,15 +8,12 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService
-                serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.MyApplicationService"/>
-        <projectService
-                serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.MyProjectService"/>
+        <applicationService serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.SavedStatistics"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.turovkv.jetbrainsidefeaturesgamification.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+        <listener class="com.github.turovkv.jetbrainsidefeaturesgamification.listeners.FeatureUsageListener"
+                  topic="com.intellij.ide.AppLifecycleListener"/>
     </applicationListeners>
 
     <actions>
