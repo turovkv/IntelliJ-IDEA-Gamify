@@ -1,6 +1,6 @@
-package com.github.turovkv.jetbrainsidefeaturesgamification.listeners
+package com.intellij.plugin.gamification.listeners
 
-import com.github.turovkv.jetbrainsidefeaturesgamification.services.SavedStatistics
+import com.intellij.plugin.gamification.services.SavedStatistics
 import com.intellij.ide.AppLifecycleListener
 import com.intellij.internal.statistic.eventLog.EventLogNotificationService
 import com.intellij.internal.statistic.eventLog.LogEvent

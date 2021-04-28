@@ -1,4 +1,4 @@
-package com.github.turovkv.jetbrainsidefeaturesgamification
+package com.intellij.plugin.gamification
 
 import com.intellij.internal.statistic.eventLog.LogEvent
 

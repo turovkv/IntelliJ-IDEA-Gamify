@@ -8,18 +8,18 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.turovkv.jetbrainsidefeaturesgamification.services.SavedStatistics"/>
+        <applicationService serviceImplementation="com.intellij.plugin.gamification.services.SavedStatistics"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.turovkv.jetbrainsidefeaturesgamification.listeners.FeatureUsageListener"
+        <listener class="com.intellij.plugin.gamification.listeners.FeatureUsageListener"
                   topic="com.intellij.ide.AppLifecycleListener"/>
     </applicationListeners>
 
     <actions>
         <group id="com.github.turovkv" text="HelloWorld" popup="true">
             <action id="action.FutureGamificationButton"
-                    class="com.github.turovkv.jetbrainsidefeaturesgamification.actions.FutureGamificationButton"
+                    class="com.intellij.plugin.gamification.actions.FeatureGamificationButton"
                     text="FeatureGamification"
             >
                 <add-to-group group-id="ToolbarRunGroup" anchor="last"/>

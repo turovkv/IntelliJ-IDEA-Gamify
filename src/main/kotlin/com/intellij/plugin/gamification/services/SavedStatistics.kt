@@ -1,6 +1,6 @@
-package com.github.turovkv.jetbrainsidefeaturesgamification.services
+package com.intellij.plugin.gamification.services
 
-import com.github.turovkv.jetbrainsidefeaturesgamification.RewardStatistics
+import com.intellij.plugin.gamification.RewardStatistics
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage

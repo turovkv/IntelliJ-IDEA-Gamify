@@ -1,4 +1,4 @@
-package com.github.turovkv.jetbrainsidefeaturesgamification.actions
+package com.intellij.plugin.gamification.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -13,7 +13,7 @@ import javax.swing.JLabel
 import javax.swing.border.EmptyBorder
 
 
-class FutureGamificationButton : AnAction() {
+class FeatureGamificationButton : AnAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         EventQueue.invokeLater {
