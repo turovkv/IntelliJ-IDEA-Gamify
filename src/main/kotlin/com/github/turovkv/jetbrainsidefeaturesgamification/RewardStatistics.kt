@@ -1,22 +1,32 @@
 package com.github.turovkv.jetbrainsidefeaturesgamification
 
+import com.intellij.internal.statistic.eventLog.LogEvent
+
 class RewardStatistics {
-    data class Reward(var name: String = "", var points: Int = 0)
+    var level: Int = 0
+    var pointsInLevel: Int = 400
+    var explorationPoints: Int = 0
+    var countExplorationUsages = HashMap<String, Int>()
 
-    var accumulatedPoints: Int = 0
-    var rewards = HashSet<Reward>()
-
-    companion object {
-        const val DEFAULT_REWARD: Int = 1
+    fun addEvent(logEvent: LogEvent) {
+        val name = logEvent.event.data["id"].toString()
+        countExplorationUsages[name] = countExplorationUsages.getOrDefault(name, 0) + 1
+        explorationPoints += when (countExplorationUsages[name]) {
+            1 -> 100
+            2 -> 60
+            3 -> 30
+            4 -> 10
+            else -> 0
+        }
+        level = explorationPoints / pointsInLevel
+        println("level = " + level + " progress = " + getProgress() + " points = " + explorationPoints)
     }
 
-    fun addReward(name: String, points: Int) {
-        accumulatedPoints += points
-        rewards.add(Reward(name, points))
-    }
+    fun getProgress() = (100 * (explorationPoints % pointsInLevel)) / pointsInLevel
 
     fun clear() {
-        accumulatedPoints = 0
-        rewards = HashSet()
+        level = 0
+        explorationPoints = 0
+        countExplorationUsages = HashMap()
     }
 }
