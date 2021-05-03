@@ -8,7 +8,7 @@ import com.intellij.openapi.application.ApplicationManager
 
 internal class FeatureUsageListener : AppLifecycleListener {
     override fun appStarted() {
-        EventLogNotificationService.subscribe(::subscriber , "FUS")
+        EventLogNotificationService.subscribe(::subscriber, "FUS")
     }
 
     private fun subscriber(logEvent: LogEvent) {
