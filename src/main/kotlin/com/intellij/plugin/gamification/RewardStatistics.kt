@@ -6,7 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.plugin.gamification.listeners.GameEventListener
 
 class RewardStatistics {
-    private val rewardStatisticsPublisher =
+    val rewardStatisticsPublisher =
         ApplicationManager.getApplication().messageBus.syncPublisher(GameEventListener.TOPIC)
 
     var allPoints: Int = 0
@@ -18,8 +18,6 @@ class RewardStatistics {
     val pointsInLevel: Int = 400
 
     fun addEvent(logEvent: LogEvent) {
-        println(rewardStatisticsPublisher)
-
         val name = logEvent.event.data["id"].toString()
         val oldCount = countFeatureUsages.getOrDefault(name, 0)
         val oldPoints = pointsPerFeature.getOrDefault(name, 0)
@@ -38,26 +36,25 @@ class RewardStatistics {
 
         countFeatureUsages[name] = oldCount + 1
         pointsPerFeature[name] = oldPoints + newPoints
-
-        println("hello")
-        clear()
     }
 
     private fun getPointsForEvent(name: String): Int {
         return when (countFeatureUsages[name]) {
-            1 -> 100
-            2 -> 60
-            3 -> 30
-            4 -> 10
+            0 -> 100
+            1 -> 60
+            2 -> 30
+            3 -> 10
             else -> 0
         }
     }
 
-    fun getRewardList(): List<List<String>> {
+    fun getProgress() = (100 * (allPoints % pointsInLevel)) / pointsInLevel
+
+    fun getRewardLog(): List<RewardLogItem> {
         return pointsPerFeature.map {
             val dname = getDisplayName(it.key)
             if (dname != null) {
-                listOf(dname, it.value.toString())
+                RewardLogItem(dname, it.value)
             } else {
                 null
             }
@@ -67,8 +64,6 @@ class RewardStatistics {
     private fun getDisplayName(name: String) =
         ProductivityFeaturesRegistry.getInstance()?.getFeatureDescriptor(name)?.displayName
 
-    fun getProgress() = (100 * (allPoints % pointsInLevel)) / pointsInLevel
-
     fun clear() {
         level = 0
         allPoints = 0
@@ -76,3 +71,5 @@ class RewardStatistics {
         pointsPerFeature = HashMap()
     }
 }
+
+data class RewardLogItem(var featureName: String, var points: Int)
