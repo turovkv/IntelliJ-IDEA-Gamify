@@ -14,6 +14,8 @@
     <applicationListeners>
         <listener class="com.intellij.plugin.gamification.listeners.FeatureUsageListener"
                   topic="com.intellij.ide.AppLifecycleListener"/>
+        <listener class="com.intellij.plugin.gamification.listeners.GameEventListenerImpl"
+                  topic="com.intellij.plugin.gamification.listeners.GameEventListener"/>
     </applicationListeners>
 
     <actions>
