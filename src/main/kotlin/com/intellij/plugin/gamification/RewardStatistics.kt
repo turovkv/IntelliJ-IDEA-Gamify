@@ -39,7 +39,7 @@ class RewardStatistics {
     }
 
     private fun getPointsForEvent(name: String): Int {
-        return when (countFeatureUsages[name]) {
+        return when (countFeatureUsages.getOrDefault(name, 0)) {
             0 -> 100
             1 -> 60
             2 -> 30
