@@ -2,56 +2,74 @@ package com.intellij.plugin.gamification.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.Splitter
+import com.intellij.plugin.gamification.RewardLogItem
 import com.intellij.plugin.gamification.services.SavedStatistics
+import com.intellij.ui.ScrollPaneFactory
+import com.intellij.ui.ScrollingUtil
+import com.intellij.ui.TableViewSpeedSearch
+import com.intellij.ui.table.TableView
+import com.intellij.util.ui.ColumnInfo
+import com.intellij.util.ui.JBDimension
+import com.intellij.util.ui.ListTableModel
 import java.awt.BorderLayout
+import java.awt.Dimension
 import java.awt.EventQueue
-import java.lang.Exception
-import javax.swing.JFrame
-import javax.swing.JPanel
-import javax.swing.JButton
-import javax.swing.JProgressBar
-import javax.swing.SwingWorker
-import javax.swing.JLabel
+import javax.swing.*
 import javax.swing.border.EmptyBorder
-import java.awt.Color;
-import javax.swing.UIManager;
 
 
 class FeatureGamificationButton : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         EventQueue.invokeLater {
-            try {
-                val frame = ProgressBar()
-                frame.isVisible = true
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            ShowGameStatisticsDialog(getEventProject(event)).show()
         }
     }
 }
 
-class ProgressBar : JFrame() {
-    val contentPane: JPanel
+class ShowGameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
 
-    private class ProgressWorker(private val progress: JProgressBar) : SwingWorker<Void?, Int?>() {
-        @Throws(Exception::class)
-        override fun doInBackground(): Void? {
-            return null
+    companion object {
+        private val DISPLAY_NAME: ColumnInfo<RewardLogItem, String> = object :
+            ColumnInfo<RewardLogItem, String>("DISPLAY_NAME") {
+            override fun valueOf(item: RewardLogItem?): String {
+                return item?.featureName.toString()
+            }
+
+            override fun getComparator(): Comparator<RewardLogItem>? {
+                return Comparator.comparing(RewardLogItem::featureName)
+            }
         }
 
-        override fun process(chunks: List<Int?>) {
-            progress.value = chunks[chunks.size - 1]!!
-            super.process(chunks)
+        private val POINTS: ColumnInfo<RewardLogItem, String> = object :
+            ColumnInfo<RewardLogItem, String>("POINTS") {
+            override fun valueOf(item: RewardLogItem?): String {
+                return item?.points.toString()
+            }
+
+            override fun getComparator(): Comparator<RewardLogItem>? {
+                return Comparator.comparing(RewardLogItem::points)
+            }
         }
 
-        override fun done() {
-            progress.value = SavedStatistics.get().getProgress()
-        }
+        private val COLUMNS = arrayOf<ColumnInfo<*, *>>(DISPLAY_NAME, POINTS)
     }
 
     init {
-        defaultCloseOperation = HIDE_ON_CLOSE
-        setBounds(0, 0, 300, 125)
+        title = "MyTitle"
+        isModal = false
+        init()
+    }
+
+    override fun getInitialSize(): Dimension {
+        return JBDimension(400, 300)
+    }
+
+    override fun createCenterPanel(): JComponent {
+        val contentPane: JPanel
+
 
         contentPane = JPanel()
         contentPane.border = EmptyBorder(5, 5, 5, 5)
@@ -75,11 +93,52 @@ class ProgressBar : JFrame() {
         contentPane.add(progress, BorderLayout.CENTER)
         contentPane.add(clearButton, BorderLayout.SOUTH)
         contentPane.add(levelInfo, BorderLayout.EAST)
-        setContentPane(contentPane)
+
+
+
         val worker = ProgressWorker(progress)
         worker.execute()
 
+
+        val splitter = Splitter(true)
+        splitter.isShowDividerControls = true
+        val rewards = SavedStatistics.get().getRewardLog()
+
+        val table = TableView(ListTableModel(COLUMNS, rewards, 0))
+        object : TableViewSpeedSearch<RewardLogItem>(table) {
+            override fun getItemText(element: RewardLogItem): String {
+                return element.featureName
+            }
+        }
+
+        val topPanel = JPanel(BorderLayout())
+        topPanel.add(ScrollPaneFactory.createScrollPane(table), BorderLayout.CENTER)
+        ScrollingUtil.ensureSelectionExists(table)
+
+        table.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
+        splitter.firstComponent = topPanel
+
+        splitter.secondComponent = contentPane
+
+
+
+        return splitter
     }
 }
 
 
+private class ProgressWorker(private val progress: JProgressBar) : SwingWorker<Void?, Int?>() {
+    @Throws(Exception::class)
+    override fun doInBackground(): Void? {
+        return null
+    }
+
+    override fun process(chunks: List<Int?>) {
+        progress.value = chunks[chunks.size - 1]!!
+        super.process(chunks)
+    }
+
+    override fun done() {
+        progress.value = SavedStatistics.get().getProgress()
+    }
+}
