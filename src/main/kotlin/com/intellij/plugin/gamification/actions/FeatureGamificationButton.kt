@@ -6,7 +6,13 @@ import com.intellij.plugin.gamification.UI
 import com.intellij.plugin.gamification.services.SavedStatistics
 import java.awt.BorderLayout
 import java.awt.EventQueue
-import javax.swing.*
+import java.lang.Exception
+import javax.swing.JButton
+import javax.swing.JFrame
+import javax.swing.JLabel
+import javax.swing.JPanel
+import javax.swing.JProgressBar
+import javax.swing.SwingWorker
 import javax.swing.border.EmptyBorder
 
 class FeatureGamificationButton : AnAction() {
