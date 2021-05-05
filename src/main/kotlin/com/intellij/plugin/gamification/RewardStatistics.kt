@@ -15,7 +15,7 @@ class RewardStatistics {
     var countFeatureUsages: MutableMap<String, Int> = HashMap()
     var pointsPerFeature: MutableMap<String, Int> = HashMap()
 
-    val pointsInLevel: Int = 400
+    val pointsInLevel: Int = Logic.pointsInLevel
 
     fun addEvent(logEvent: LogEvent) {
         val name = logEvent.event.data["id"].toString()
@@ -39,16 +39,15 @@ class RewardStatistics {
     }
 
     private fun getPointsForEvent(name: String): Int {
-        return when (countFeatureUsages.getOrDefault(name, 0)) {
-            0 -> 100
-            1 -> 60
-            2 -> 30
-            3 -> 10
-            else -> 0
+        val count = countFeatureUsages.getOrDefault(name, 0)
+        return if (count < Logic.NewPoints.arr.size) {
+            Logic.NewPoints.arr[count]
+        } else {
+            0
         }
     }
 
-    fun getProgress() = (100 * (allPoints % pointsInLevel)) / pointsInLevel
+    fun getProgress() = (Logic.maxProcess * (allPoints % pointsInLevel)) / pointsInLevel
 
     fun getRewardLog(): List<RewardLogItem> {
         return pointsPerFeature.map {

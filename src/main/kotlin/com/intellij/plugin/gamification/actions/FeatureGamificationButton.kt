@@ -2,6 +2,7 @@ package com.intellij.plugin.gamification.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.plugin.gamification.UI
 import com.intellij.plugin.gamification.services.SavedStatistics
 import java.awt.BorderLayout
 import java.awt.EventQueue
@@ -13,19 +14,12 @@ import javax.swing.JProgressBar
 import javax.swing.SwingWorker
 import javax.swing.JLabel
 import javax.swing.border.EmptyBorder
-import java.awt.Color;
-import javax.swing.UIManager;
-
 
 class FeatureGamificationButton : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         EventQueue.invokeLater {
-            try {
-                val frame = ProgressBar()
-                frame.isVisible = true
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            val frame = ProgressBar()
+            frame.isVisible = true
         }
     }
 }
@@ -51,11 +45,16 @@ class ProgressBar : JFrame() {
 
     init {
         defaultCloseOperation = HIDE_ON_CLOSE
-        setBounds(0, 0, 300, 125)
+        setBounds(
+            UI.Bounds.x,
+            UI.Bounds.y,
+            UI.Bounds.width,
+            UI.Bounds.height
+        )
 
         contentPane = JPanel()
-        contentPane.border = EmptyBorder(5, 5, 5, 5)
-        contentPane.layout = BorderLayout(0, 0)
+        contentPane.border = EmptyBorder(UI.Border.top, UI.Border.left, UI.Border.bottom, UI.Border.right)
+        contentPane.layout = BorderLayout(UI.Layout.hgap, UI.Layout.vgap)
 
         val progress = JProgressBar()
 
@@ -70,7 +69,6 @@ class ProgressBar : JFrame() {
 
         progress.isStringPainted = true
 
-
         contentPane.add(JLabel("Your progress: "), BorderLayout.NORTH)
         contentPane.add(progress, BorderLayout.CENTER)
         contentPane.add(clearButton, BorderLayout.SOUTH)
@@ -78,8 +76,5 @@ class ProgressBar : JFrame() {
         setContentPane(contentPane)
         val worker = ProgressWorker(progress)
         worker.execute()
-
     }
 }
-
-

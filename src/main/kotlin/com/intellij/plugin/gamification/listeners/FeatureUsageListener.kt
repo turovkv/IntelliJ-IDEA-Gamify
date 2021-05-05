@@ -4,7 +4,6 @@ import com.intellij.plugin.gamification.services.SavedStatistics
 import com.intellij.ide.AppLifecycleListener
 import com.intellij.internal.statistic.eventLog.EventLogNotificationService
 import com.intellij.internal.statistic.eventLog.LogEvent
-import com.intellij.openapi.application.ApplicationManager
 
 internal class FeatureUsageListener : AppLifecycleListener {
     override fun appStarted() {
