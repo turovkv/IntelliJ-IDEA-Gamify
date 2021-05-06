@@ -10,8 +10,8 @@ import com.intellij.openapi.components.service
 import com.intellij.plugin.gamification.GameEvent
 import com.intellij.plugin.gamification.GameMechanics
 import com.intellij.plugin.gamification.GameMechanicsImpl
-import com.intellij.plugin.gamification.RewardInfoItem
 import com.intellij.plugin.gamification.PluginState
+import com.intellij.plugin.gamification.RewardInfoItem
 import com.intellij.plugin.gamification.config.Logic
 import com.intellij.plugin.gamification.listeners.GameEventListener
 
@@ -56,6 +56,8 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
         state.countFeatureUsages[name] = oldCount + 1
         state.pointsPerFeature[name] = oldPoints + addPoints
     }
+
+    fun getLevel() = state.level
 
     fun getProgress() =
         (Logic.maxProgress * state.pointsOnLevel) / mechanics.maxPointsOnLevel(state.level)

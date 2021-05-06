@@ -2,79 +2,12 @@ package com.intellij.plugin.gamification.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.plugin.gamification.config.UI
-import com.intellij.plugin.gamification.services.RewardStatisticsService
-import java.awt.BorderLayout
 import java.awt.EventQueue
-import java.lang.Exception
-import javax.swing.JButton
-import javax.swing.JFrame
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JProgressBar
-import javax.swing.SwingWorker
-import javax.swing.border.EmptyBorder
 
 class FeatureGamificationButton : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         EventQueue.invokeLater {
-            val frame = ProgressBar()
-            frame.isVisible = true
+            ShowGameStatisticsDialog(getEventProject(event)).show()
         }
-    }
-}
-
-class ProgressBar : JFrame() {
-    val contentPane: JPanel
-
-    private class ProgressWorker(private val progress: JProgressBar) : SwingWorker<Void?, Int?>() {
-        @Throws(Exception::class)
-        override fun doInBackground(): Void? {
-            return null
-        }
-
-        override fun process(chunks: List<Int?>) {
-            progress.value = chunks[chunks.size - 1]!!
-            super.process(chunks)
-        }
-
-        override fun done() {
-            progress.value = RewardStatisticsService.getInstance().getProgress()
-        }
-    }
-
-    init {
-        defaultCloseOperation = HIDE_ON_CLOSE
-        setBounds(
-            UI.Bounds.x,
-            UI.Bounds.y,
-            UI.Bounds.width,
-            UI.Bounds.height
-        )
-
-        contentPane = JPanel()
-        contentPane.border = EmptyBorder(UI.Border.top, UI.Border.left, UI.Border.bottom, UI.Border.right)
-        contentPane.layout = BorderLayout(UI.Layout.hgap, UI.Layout.vgap)
-
-        val progress = JProgressBar()
-
-        val levelInfo = JLabel("Level: " + RewardStatisticsService.getInstance().state.level.toString())
-
-        val clearButton = JButton("Clear Stats")
-        clearButton.addActionListener {
-            RewardStatisticsService.getInstance().clear()
-            progress.value = RewardStatisticsService.getInstance().getProgress()
-            levelInfo.setText("Level: " + RewardStatisticsService.getInstance().state.level.toString())
-        }
-
-        progress.isStringPainted = true
-
-        contentPane.add(JLabel("Your progress: "), BorderLayout.NORTH)
-        contentPane.add(progress, BorderLayout.CENTER)
-        contentPane.add(clearButton, BorderLayout.SOUTH)
-        contentPane.add(levelInfo, BorderLayout.EAST)
-        setContentPane(contentPane)
-        val worker = ProgressWorker(progress)
-        worker.execute()
     }
 }

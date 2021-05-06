@@ -1,23 +1,9 @@
 package com.intellij.plugin.gamification.config
 
 object UI {
-    object Bounds {
-        const val x = 0
-        const val y = 0
-        const val width = 300
-        const val height = 125
-    }
-
-    object Border {
-        const val top = 5
-        const val left = 5
-        const val bottom = 5
-        const val right = 5
-    }
-
-    object Layout {
-        const val hgap = 0
-        const val vgap = 0
+    object Dialog {
+        const val with = 400
+        const val height = 300
     }
 }
 
