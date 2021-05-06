@@ -7,7 +7,11 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
-import com.intellij.plugin.gamification.*
+import com.intellij.plugin.gamification.GameEvent
+import com.intellij.plugin.gamification.GameMechanics
+import com.intellij.plugin.gamification.GameMechanicsImpl
+import com.intellij.plugin.gamification.RewardInfoItem
+import com.intellij.plugin.gamification.PluginState
 import com.intellij.plugin.gamification.config.Logic
 import com.intellij.plugin.gamification.listeners.GameEventListener
 
@@ -56,11 +60,11 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
     fun getProgress() =
         (Logic.maxProgress * state.pointsOnLevel) / mechanics.maxPointsOnLevel(state.level)
 
-    fun getRewardInfo(): List<RewardLogItem> {
+    fun getRewardInfo(): List<RewardInfoItem> {
         return state.pointsPerFeature.map {
             val dname = getDisplayName(it.key)
             if (dname != null) {
-                RewardLogItem(dname, it.value)
+                RewardInfoItem(dname, it.value)
             } else {
                 null
             }

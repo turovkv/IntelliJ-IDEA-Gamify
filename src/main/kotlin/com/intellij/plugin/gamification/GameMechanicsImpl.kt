@@ -2,7 +2,7 @@ package com.intellij.plugin.gamification
 
 import com.intellij.plugin.gamification.config.Logic
 
-class GameMechanicsImpl: GameMechanics {
+class GameMechanicsImpl : GameMechanics {
     override fun getPointsForEvent(eventName: String, state: PluginState): Int {
         val count = state.countFeatureUsages.getOrDefault(eventName, 0)
         return if (count < Logic.NewPoints.arr.size) {
