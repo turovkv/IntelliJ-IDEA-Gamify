@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification
+package com.intellij.plugin.gamification.config
 
 object UI {
     object Bounds {

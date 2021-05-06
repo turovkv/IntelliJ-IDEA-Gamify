@@ -2,7 +2,7 @@ package com.intellij.plugin.gamification.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.plugin.gamification.UI
+import com.intellij.plugin.gamification.config.UI
 import com.intellij.plugin.gamification.services.SavedStatistics
 import java.awt.BorderLayout
 import java.awt.EventQueue

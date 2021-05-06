@@ -3,6 +3,7 @@ package com.intellij.plugin.gamification
 import com.intellij.featureStatistics.ProductivityFeaturesRegistry
 import com.intellij.internal.statistic.eventLog.LogEvent
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.plugin.gamification.config.Logic
 import com.intellij.plugin.gamification.listeners.GameEventListener
 
 class RewardStatistics {
