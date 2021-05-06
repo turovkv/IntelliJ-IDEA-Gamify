@@ -6,6 +6,7 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
+import com.intellij.plugin.gamification.GameEvent
 import com.intellij.plugin.gamification.PluginState
 import com.intellij.plugin.gamification.RewardLogItem
 import com.intellij.plugin.gamification.config.Logic
@@ -30,12 +31,12 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
 
         state.allPoints += newPoints
         if (oldAllPoints != state.allPoints) {
-            state.rewardStatisticsPublisher.progressChanged()
+            state.rewardStatisticsPublisher.progressChanged(GameEvent(state.level, state.allPoints))
         }
 
         state.level = state.allPoints / state.pointsInLevel
         if (oldAllPoints / state.pointsInLevel != state.level) {
-            state.rewardStatisticsPublisher.levelChanged()
+            state.rewardStatisticsPublisher.levelChanged(GameEvent(state.level, state.allPoints))
         }
 
         state.countFeatureUsages[name] = oldCount + 1
