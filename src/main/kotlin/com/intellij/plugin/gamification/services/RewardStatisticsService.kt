@@ -56,7 +56,7 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
     fun getProgress() =
         (Logic.maxProgress * state.pointsOnLevel) / mechanics.maxPointsOnLevel(state.level)
 
-    fun getRewardLog(): List<RewardLogItem> {
+    fun getRewardInfo(): List<RewardLogItem> {
         return state.pointsPerFeature.map {
             val dname = getDisplayName(it.key)
             if (dname != null) {
