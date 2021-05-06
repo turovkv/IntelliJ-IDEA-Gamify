@@ -23,7 +23,7 @@ object UI {
 
 object Logic {
     const val pointsInLevel = 400
-    const val maxProcess = 100
+    const val maxProgress = 100
 
     object NewPoints {
         const val v0 = 100

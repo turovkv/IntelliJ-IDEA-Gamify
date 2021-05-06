@@ -12,6 +12,7 @@ internal class FeatureUsageListener : AppLifecycleListener {
 
     private fun subscriber(logEvent: LogEvent) {
         if (logEvent.group.id == "productivity" && logEvent.event.id == "feature.used") {
+            println(logEvent.event.data["id"].toString())
             RewardStatisticsService.getInstance().addEvent(logEvent)
         }
     }

@@ -7,9 +7,7 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
-import com.intellij.plugin.gamification.GameEvent
-import com.intellij.plugin.gamification.PluginState
-import com.intellij.plugin.gamification.RewardLogItem
+import com.intellij.plugin.gamification.*
 import com.intellij.plugin.gamification.config.Logic
 import com.intellij.plugin.gamification.listeners.GameEventListener
 
@@ -23,6 +21,7 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
     }
 
     private var state = PluginState()
+    private val mechanics: GameMechanics = GameMechanicsImpl()
 
     private fun getPublisher() =
         ApplicationManager.getApplication().messageBus.syncPublisher(GameEventListener.TOPIC)
@@ -31,33 +30,31 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
         val name = logEvent.event.data["id"].toString()
         val oldCount = state.countFeatureUsages.getOrDefault(name, 0)
         val oldPoints = state.pointsPerFeature.getOrDefault(name, 0)
-        val oldAllPoints = state.allPoints
-        val newPoints = getPointsForEvent(name)
+        val oldLevel = state.level
+        val addPoints = mechanics.getPointsForEvent(name, state)
 
-        state.allPoints += newPoints
-        if (oldAllPoints != state.allPoints) {
-            getPublisher().progressChanged(GameEvent(state.level, state.allPoints))
+        state.allPoints += addPoints
+        state.pointsOnLevel += addPoints
+
+        while (state.pointsOnLevel >= mechanics.maxPointsOnLevel(state.level)) {
+            state.pointsOnLevel -= mechanics.maxPointsOnLevel(state.level)
+            state.level += 1
         }
 
-        state.level = state.allPoints / state.pointsInLevel
-        if (oldAllPoints / state.pointsInLevel != state.level) {
+        if (oldLevel != state.level) {
             getPublisher().levelChanged(GameEvent(state.level, state.allPoints))
         }
 
-        state.countFeatureUsages[name] = oldCount + 1
-        state.pointsPerFeature[name] = oldPoints + newPoints
-    }
-
-    private fun getPointsForEvent(name: String): Int {
-        val count = state.countFeatureUsages.getOrDefault(name, 0)
-        return if (count < Logic.NewPoints.arr.size) {
-            Logic.NewPoints.arr[count]
-        } else {
-            0
+        if (addPoints != 0) {
+            getPublisher().progressChanged(GameEvent(state.level, state.allPoints))
         }
+
+        state.countFeatureUsages[name] = oldCount + 1
+        state.pointsPerFeature[name] = oldPoints + addPoints
     }
 
-    fun getProgress() = (Logic.maxProcess * (state.allPoints % state.pointsInLevel)) / state.pointsInLevel
+    fun getProgress() =
+        (Logic.maxProgress * state.pointsOnLevel) / mechanics.maxPointsOnLevel(state.level)
 
     fun getRewardLog(): List<RewardLogItem> {
         return state.pointsPerFeature.map {
@@ -72,7 +69,6 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
 
     private fun getDisplayName(name: String) =
         ProductivityFeaturesRegistry.getInstance()?.getFeatureDescriptor(name)?.displayName
-
 
     fun clear() {
         state = PluginState()
