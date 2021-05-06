@@ -8,7 +8,7 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.intellij.plugin.gamification.services.SavedStatistics"/>
+        <applicationService serviceImplementation="com.intellij.plugin.gamification.services.RewardStatisticsService"/>
     </extensions>
 
     <applicationListeners>

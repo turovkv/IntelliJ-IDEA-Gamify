@@ -3,7 +3,7 @@ package com.intellij.plugin.gamification.actions
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.plugin.gamification.config.UI
-import com.intellij.plugin.gamification.services.SavedStatistics
+import com.intellij.plugin.gamification.services.RewardStatisticsService
 import java.awt.BorderLayout
 import java.awt.EventQueue
 import java.lang.Exception
@@ -39,7 +39,7 @@ class ProgressBar : JFrame() {
         }
 
         override fun done() {
-            progress.value = SavedStatistics.get().getProgress()
+            progress.value = RewardStatisticsService.getInstance().getProgress()
         }
     }
 
@@ -58,13 +58,13 @@ class ProgressBar : JFrame() {
 
         val progress = JProgressBar()
 
-        val levelInfo = JLabel("Level: " + SavedStatistics.get().level.toString())
+        val levelInfo = JLabel("Level: " + RewardStatisticsService.getInstance().state.level.toString())
 
         val clearButton = JButton("Clear Stats")
         clearButton.addActionListener {
-            SavedStatistics.get().clear()
-            progress.value = SavedStatistics.get().getProgress()
-            levelInfo.setText("Level: " + SavedStatistics.get().level.toString())
+            RewardStatisticsService.getInstance().clear()
+            progress.value = RewardStatisticsService.getInstance().getProgress()
+            levelInfo.setText("Level: " + RewardStatisticsService.getInstance().state.level.toString())
         }
 
         progress.isStringPainted = true
