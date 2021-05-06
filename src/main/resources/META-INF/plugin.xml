@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.github.turovkv.jetbrainsidefeaturesgamification</id>
-    <name>Jetbrains-Ide-Features-Gamification</name>
+    <name>Gamify</name>
     <vendor>JetBrains</vendor>
 
     <!-- Product and plugin compatibility requirements -->
@@ -19,13 +19,11 @@
     </applicationListeners>
 
     <actions>
-        <group id="com.github.turovkv" text="HelloWorld" popup="true">
-            <action id="action.FutureGamificationButton"
+            <action id="action.FeatureGamificationButton"
                     class="com.intellij.plugin.gamification.actions.FeatureGamificationButton"
                     text="FeatureGamification"
             >
                 <add-to-group group-id="ToolbarRunGroup" anchor="last"/>
             </action>
-        </group>
     </actions>
 </idea-plugin>
