@@ -2,6 +2,7 @@ package com.intellij.plugin.gamification.services
 
 import com.intellij.featureStatistics.ProductivityFeaturesRegistry
 import com.intellij.internal.statistic.eventLog.LogEvent
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
@@ -10,6 +11,7 @@ import com.intellij.plugin.gamification.GameEvent
 import com.intellij.plugin.gamification.PluginState
 import com.intellij.plugin.gamification.RewardLogItem
 import com.intellij.plugin.gamification.config.Logic
+import com.intellij.plugin.gamification.listeners.GameEventListener
 
 @State(
     name = "RewardStats",
@@ -22,6 +24,9 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
 
     private var state = PluginState()
 
+    private fun getPublisher() =
+        ApplicationManager.getApplication().messageBus.syncPublisher(GameEventListener.TOPIC)
+
     fun addEvent(logEvent: LogEvent) {
         val name = logEvent.event.data["id"].toString()
         val oldCount = state.countFeatureUsages.getOrDefault(name, 0)
@@ -31,12 +36,12 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
 
         state.allPoints += newPoints
         if (oldAllPoints != state.allPoints) {
-            state.rewardStatisticsPublisher.progressChanged(GameEvent(state.level, state.allPoints))
+            getPublisher().progressChanged(GameEvent(state.level, state.allPoints))
         }
 
         state.level = state.allPoints / state.pointsInLevel
         if (oldAllPoints / state.pointsInLevel != state.level) {
-            state.rewardStatisticsPublisher.levelChanged(GameEvent(state.level, state.allPoints))
+            getPublisher().levelChanged(GameEvent(state.level, state.allPoints))
         }
 
         state.countFeatureUsages[name] = oldCount + 1

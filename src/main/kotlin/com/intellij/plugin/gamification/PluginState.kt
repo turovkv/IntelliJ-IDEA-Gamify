@@ -5,8 +5,6 @@ import com.intellij.plugin.gamification.config.Logic
 import com.intellij.plugin.gamification.listeners.GameEventListener
 
 class PluginState {
-    val rewardStatisticsPublisher =
-        ApplicationManager.getApplication().messageBus.syncPublisher(GameEventListener.TOPIC)
 
     var allPoints: Int = 0
     var level: Int = 0
