@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>com.github.turovkv.jetbrainsidefeaturesgamification</id>
+    <id>intellij.gamify</id>
     <name>Gamify</name>
     <vendor>JetBrains</vendor>
 
