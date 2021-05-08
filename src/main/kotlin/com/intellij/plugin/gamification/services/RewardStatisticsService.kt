@@ -53,16 +53,18 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
         }
 
         if (oldLevel != state.level) {
-            getPublisher().levelChanged(GameEvent(state.level, state.allPoints))
+            getPublisher().levelChanged(getCurrentGameEvent())
         }
 
         if (addPoints != 0) {
-            getPublisher().progressChanged(GameEvent(state.level, state.allPoints))
+            getPublisher().progressChanged(getCurrentGameEvent())
         }
 
         state.countFeatureUsages[name] = oldCount + 1
         state.pointsPerFeature[name] = oldPoints + addPoints
     }
+
+    fun getCurrentGameEvent() = GameEvent(getLevel(), getProgress())
 
     fun getLevel() = state.level
 

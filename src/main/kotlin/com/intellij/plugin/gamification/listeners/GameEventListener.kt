@@ -18,4 +18,4 @@ interface GameEventListener {
     fun progressChanged(event: GameEvent) {}
 }
 
-data class GameEvent(val level: Int, val points: Int)
+data class GameEvent(val level: Int, val progress: Int)

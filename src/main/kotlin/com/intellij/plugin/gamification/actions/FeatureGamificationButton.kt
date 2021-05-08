@@ -6,6 +6,6 @@ import com.intellij.openapi.project.DumbAware
 
 class FeatureGamificationButton : AnAction(), DumbAware {
     override fun actionPerformed(event: AnActionEvent) {
-        ShowGameStatisticsDialog(getEventProject(event)).show()
+        ShowGameStatisticsDialog(null).show()
     }
 }
