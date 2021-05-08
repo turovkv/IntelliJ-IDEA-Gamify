@@ -5,7 +5,7 @@ import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import com.intellij.openapi.wm.impl.status.IdeStatusBarImpl
 import com.intellij.openapi.wm.impl.status.TextPanel
-import com.intellij.plugin.gamification.actions.ShowGameStatisticsDialog
+import com.intellij.plugin.gamification.actions.GameStatisticsDialog
 import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
 import com.intellij.ui.ClickListener
@@ -88,7 +88,7 @@ class GameProgressPanel : TextPanel(), CustomStatusBarWidget {
         setTextAlignment(CENTER_ALIGNMENT)
         object : ClickListener() {
             override fun onClick(event: MouseEvent, clickCount: Int): Boolean {
-                ShowGameStatisticsDialog(null).show() // TODO я не знаю как узнать project ((
+                GameStatisticsDialog(null).show() // TODO я не знаю как узнать project ((
                 return true
             }
         }.installOn(this, true)

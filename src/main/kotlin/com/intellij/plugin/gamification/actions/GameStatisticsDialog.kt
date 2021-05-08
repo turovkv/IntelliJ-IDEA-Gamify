@@ -20,7 +20,7 @@ import javax.swing.JPanel
 import javax.swing.JProgressBar
 import javax.swing.ListSelectionModel
 
-class ShowGameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
+class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
     companion object {
         private val DISPLAY_NAME: ColumnInfo<RewardInfoItem, String> = object :
             ColumnInfo<RewardInfoItem, String>("Feature") {
