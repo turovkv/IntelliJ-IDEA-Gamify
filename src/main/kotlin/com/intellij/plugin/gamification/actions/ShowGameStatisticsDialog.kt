@@ -3,7 +3,7 @@ package com.intellij.plugin.gamification.actions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Splitter
-import com.intellij.plugin.gamification.config.UI
+import com.intellij.plugin.gamification.config.Config
 import com.intellij.plugin.gamification.services.RewardInfoItem
 import com.intellij.plugin.gamification.services.RewardStatisticsService
 import com.intellij.ui.ScrollPaneFactory
@@ -54,7 +54,7 @@ class ShowGameStatisticsDialog(project: Project?) : DialogWrapper(project, true)
     }
 
     override fun getInitialSize(): Dimension {
-        return JBDimension(UI.Dialog.with, UI.Dialog.height)
+        return JBDimension(Config.Dialog.with, Config.Dialog.height)
     }
 
     private fun stats() = RewardStatisticsService.getInstance()

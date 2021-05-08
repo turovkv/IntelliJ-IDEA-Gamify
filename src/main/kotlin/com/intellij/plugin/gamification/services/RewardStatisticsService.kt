@@ -9,7 +9,6 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
 import com.intellij.plugin.gamification.GameMechanics
 import com.intellij.plugin.gamification.GameMechanicsImpl
-import com.intellij.plugin.gamification.config.Logic
 import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 
@@ -67,8 +66,7 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
 
     fun getLevel() = state.level
 
-    fun getProgress() =
-        (Logic.maxProgress * state.pointsOnLevel) / mechanics.maxPointsOnLevel(state.level)
+    fun getProgress() = mechanics.getProgress(state.pointsOnLevel, state.level)
 
     fun getRewardInfo(): List<RewardInfoItem> {
         return state.pointsPerFeature.map {
