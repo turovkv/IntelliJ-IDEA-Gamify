@@ -38,15 +38,18 @@ class GameProgressWidgetFactory : StatusBarWidgetFactory {
             .getApplication()
             .messageBus
             .connect()
-            .subscribe(GameEventListener.TOPIC, object : GameEventListener {
-                override fun levelChanged(event: GameEvent) {
-                    panel.updateState(event)
-                }
+            .subscribe(
+                GameEventListener.TOPIC,
+                object : GameEventListener {
+                    override fun levelChanged(event: GameEvent) {
+                        panel.updateState(event)
+                    }
 
-                override fun progressChanged(event: GameEvent) {
-                    panel.updateState(event)
+                    override fun progressChanged(event: GameEvent) {
+                        panel.updateState(event)
+                    }
                 }
-            })
+            )
 
         return panel
     }
