@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification
+package com.intellij.plugin.gamification.mechanics
 
 class GameMechanicsImpl : GameMechanics {
     override fun getPointsForEvent(countUsages: Int): Int {
