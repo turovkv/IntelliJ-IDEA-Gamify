@@ -10,5 +10,3 @@ class PluginState {
 }
 
 data class RewardInfoItem(var featureName: String, var points: Int)
-
-data class GameEvent(val level: Int, val points: Int)

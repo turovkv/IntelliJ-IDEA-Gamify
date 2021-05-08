@@ -1,6 +1,5 @@
 package com.intellij.plugin.gamification.listeners
 
-import com.intellij.plugin.gamification.GameEvent
 import com.intellij.util.messages.Topic
 
 interface GameEventListener {
@@ -18,3 +17,5 @@ interface GameEventListener {
      */
     fun progressChanged(event: GameEvent) {}
 }
+
+data class GameEvent(val level: Int, val points: Int)
