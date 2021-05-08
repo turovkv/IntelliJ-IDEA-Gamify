@@ -6,8 +6,6 @@ import java.awt.EventQueue
 
 class FeatureGamificationButton : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
-        EventQueue.invokeLater {
-            ShowGameStatisticsDialog(getEventProject(event)).show()
-        }
+        ShowGameStatisticsDialog(getEventProject(event)).show()
     }
 }
