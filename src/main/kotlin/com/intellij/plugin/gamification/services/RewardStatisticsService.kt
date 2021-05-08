@@ -9,8 +9,6 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
 import com.intellij.plugin.gamification.GameMechanics
 import com.intellij.plugin.gamification.GameMechanicsImpl
-import com.intellij.plugin.gamification.PluginState
-import com.intellij.plugin.gamification.RewardInfoItem
 import com.intellij.plugin.gamification.config.Logic
 import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
@@ -19,7 +17,16 @@ import com.intellij.plugin.gamification.listeners.GameEventListener
     name = "RewardStats",
     storages = [Storage("RewardStats.xml")]
 )
-class RewardStatisticsService : PersistentStateComponent<PluginState> {
+class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService.PluginState> {
+    class PluginState {
+        var allPoints: Int = 0
+        var pointsOnLevel: Int = 0
+        var level: Int = 0
+
+        var countFeatureUsages: MutableMap<String, Int> = HashMap()
+        var pointsPerFeature: MutableMap<String, Int> = HashMap()
+    }
+
     companion object {
         fun getInstance() = service<RewardStatisticsService>()
     }
@@ -35,7 +42,8 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
         val oldCount = state.countFeatureUsages.getOrDefault(name, 0)
         val oldPoints = state.pointsPerFeature.getOrDefault(name, 0)
         val oldLevel = state.level
-        val addPoints = mechanics.getPointsForEvent(name, state)
+        val countUsages = state.countFeatureUsages.getOrDefault(name, 0)
+        val addPoints = mechanics.getPointsForEvent(countUsages)
 
         state.allPoints += addPoints
         state.pointsOnLevel += addPoints
@@ -86,3 +94,5 @@ class RewardStatisticsService : PersistentStateComponent<PluginState> {
         this.state = state
     }
 }
+
+data class RewardInfoItem(var featureName: String, var points: Int)
