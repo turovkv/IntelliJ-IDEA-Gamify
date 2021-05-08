@@ -25,7 +25,7 @@ class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
             const val with = 400
             const val height = 300
         }
-        
+
         private val DISPLAY_NAME: ColumnInfo<RewardInfoItem, String> = object :
             ColumnInfo<RewardInfoItem, String>("Feature") {
             override fun valueOf(item: RewardInfoItem?): String {
