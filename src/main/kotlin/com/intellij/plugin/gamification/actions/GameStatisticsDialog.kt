@@ -20,7 +20,7 @@ import javax.swing.JProgressBar
 import javax.swing.ListSelectionModel
 
 class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
-    companion object {
+    private companion object {
         object Dialog {
             const val with = 400
             const val height = 300

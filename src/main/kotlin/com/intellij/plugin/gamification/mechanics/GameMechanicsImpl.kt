@@ -17,7 +17,7 @@ class GameMechanicsImpl : GameMechanics {
         return (maxProgress * pointsOnLevel) / maxPointsOnLevel(level)
     }
 
-    companion object {
+    private companion object {
         const val pointsInLevel = 400
         const val maxProgress = 100
 
