@@ -3,7 +3,6 @@ package com.intellij.plugin.gamification.actions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Splitter
-import com.intellij.plugin.gamification.config.Config
 import com.intellij.plugin.gamification.services.RewardInfoItem
 import com.intellij.plugin.gamification.services.RewardStatisticsService
 import com.intellij.ui.ScrollPaneFactory
@@ -22,6 +21,11 @@ import javax.swing.ListSelectionModel
 
 class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
     companion object {
+        object Dialog {
+            const val with = 400
+            const val height = 300
+        }
+        
         private val DISPLAY_NAME: ColumnInfo<RewardInfoItem, String> = object :
             ColumnInfo<RewardInfoItem, String>("Feature") {
             override fun valueOf(item: RewardInfoItem?): String {
@@ -54,7 +58,11 @@ class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
     }
 
     override fun getInitialSize(): Dimension {
-        return JBDimension(Config.Dialog.with, Config.Dialog.height)
+        return JBDimension(Dialog.with, Dialog.height)
+    }
+
+    override fun getDimensionServiceKey(): String {
+        return "#com.intellij.plugin.gamification.actions.GameStatisticsDialog"
     }
 
     private fun stats() = RewardStatisticsService.getInstance()
