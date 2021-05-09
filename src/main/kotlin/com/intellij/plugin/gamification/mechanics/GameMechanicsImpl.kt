@@ -13,10 +13,6 @@ class GameMechanicsImpl : GameMechanics {
         return pointsInLevel
     }
 
-    override fun getProgress(pointsOnLevel: Int, level: Int): Int {
-        return (maxProgress * pointsOnLevel) / maxPointsOnLevel(level)
-    }
-
     companion object {
         const val maxProgress = 100
         private const val pointsInLevel = 400

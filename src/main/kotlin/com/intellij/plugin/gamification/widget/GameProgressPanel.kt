@@ -52,7 +52,6 @@ class GameProgressPanel(project: Project) : TextPanel(), CustomStatusBarWidget {
     }
 
     public override fun paintComponent(g: Graphics) {
-        size.width = WIDTH // ???
         val barWidth = size.width
         val progressBarLength = barWidth * progress / GameMechanicsImpl.maxProgress
 

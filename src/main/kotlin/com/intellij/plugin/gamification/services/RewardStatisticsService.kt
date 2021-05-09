@@ -81,7 +81,8 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
 
     fun getLevel() = state.level
 
-    fun getProgress() = mechanics.getProgress(state.pointsOnLevel, state.level)
+    fun getProgress() =
+        (GameMechanicsImpl.maxProgress * state.pointsOnLevel) / mechanics.maxPointsOnLevel(state.level)
 
     fun getRewardInfo(): List<RewardInfoItem> {
         return state.pointsPerFeature.map {
