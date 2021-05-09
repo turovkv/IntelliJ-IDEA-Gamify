@@ -97,6 +97,8 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
 
     fun clear() {
         state = PluginState()
+        getPublisher().progressChanged(getCurrentGameEvent())
+        getPublisher().levelChanged(getCurrentGameEvent())
     }
 
     override fun getState() = state
