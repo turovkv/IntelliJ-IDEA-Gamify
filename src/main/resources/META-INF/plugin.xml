@@ -18,13 +18,4 @@
         <listener class="com.intellij.plugin.gamification.listeners.GameEventListenerImpl"
                   topic="com.intellij.plugin.gamification.listeners.GameEventListener"/>
     </applicationListeners>
-
-    <actions>
-            <action id="action.FeatureGamificationButton"
-                    class="com.intellij.plugin.gamification.actions.FeatureGamificationButton"
-                    text="FeatureGamification"
-            >
-                <add-to-group group-id="ToolbarRunGroup" anchor="last"/>
-            </action>
-    </actions>
 </idea-plugin>
