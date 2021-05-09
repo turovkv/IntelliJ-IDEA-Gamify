@@ -7,6 +7,7 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
+import com.intellij.openapi.project.Project
 import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanics
@@ -16,6 +17,7 @@ import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
     name = "RewardStats",
     storages = [Storage("RewardStats.xml")]
 )
+@Suppress("TooManyFunctions")
 class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService.PluginState> {
     class PluginState {
         var allPoints: Int = 0
@@ -36,9 +38,9 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
     private fun getPublisher() =
         ApplicationManager.getApplication().messageBus.syncPublisher(GameEventListener.TOPIC)
 
-    fun addListener(listener: GameEventListener) {
-        ApplicationManager
-            .getApplication()
+    fun addListener(listener: GameEventListener, project: Project? = null) {
+        val busProvider = project ?: ApplicationManager.getApplication()
+        busProvider
             .messageBus
             .connect()
             .subscribe(

@@ -21,7 +21,7 @@ import javax.swing.JPanel
 import javax.swing.JProgressBar
 import javax.swing.ListSelectionModel
 
-class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
+class GameStatisticsDialog(private val project: Project?) : DialogWrapper(project, true) {
     private companion object {
         object Dialog {
             const val with = 400
@@ -100,16 +100,19 @@ class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
         splitter.firstComponent = contentPanel
         splitter.secondComponent = tablePanel
 
-        stats().addListener(object : GameEventListener {
-            override fun progressChanged(event: GameEvent) {
-                progress.value = event.progress
-                levelInfo.text = "Level: ${event.level}"
-                table.setModelAndUpdateColumns(
-                    ListTableModel(COLUMNS, stats().getRewardInfo(), 0)
-                )
-                repaint()
-            }
-        })
+        stats().addListener(
+            object : GameEventListener {
+                override fun progressChanged(event: GameEvent) {
+                    progress.value = event.progress
+                    levelInfo.text = "Level: ${event.level}"
+                    table.setModelAndUpdateColumns(
+                        ListTableModel(COLUMNS, stats().getRewardInfo(), 0)
+                    )
+                    repaint()
+                }
+            },
+            project
+        )
 
         return splitter
     }
