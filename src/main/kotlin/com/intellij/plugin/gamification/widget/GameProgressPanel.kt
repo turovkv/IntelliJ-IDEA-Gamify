@@ -88,12 +88,6 @@ class GameProgressPanel : TextPanel(), CustomStatusBarWidget {
     init {
         isFocusable = false
         setTextAlignment(CENTER_ALIGNMENT)
-        object : ClickListener() {
-            override fun onClick(event: MouseEvent, clickCount: Int): Boolean {
-                GameStatisticsDialog(null).show() // TODO я не знаю как узнать project ((
-                return true
-            }
-        }.installOn(this, true)
         border = JBUI.Borders.empty(0, 2)
         updateUI()
 
