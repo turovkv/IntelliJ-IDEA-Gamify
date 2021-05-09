@@ -7,7 +7,9 @@ import com.intellij.openapi.wm.impl.status.IdeStatusBarImpl
 import com.intellij.openapi.wm.impl.status.TextPanel
 import com.intellij.plugin.gamification.actions.GameStatisticsDialog
 import com.intellij.plugin.gamification.listeners.GameEvent
+import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
+import com.intellij.plugin.gamification.services.RewardStatisticsService
 import com.intellij.ui.ClickListener
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
@@ -94,5 +96,19 @@ class GameProgressPanel : TextPanel(), CustomStatusBarWidget {
         }.installOn(this, true)
         border = JBUI.Borders.empty(0, 2)
         updateUI()
+
+        updateState(
+            RewardStatisticsService.getInstance().getCurrentGameEvent()
+        )
+
+        RewardStatisticsService
+            .getInstance()
+            .addListener(
+                object : GameEventListener {
+                    override fun progressChanged(event: GameEvent) {
+                        updateState(event)
+                    }
+                }
+            )
     }
 }
