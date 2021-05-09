@@ -3,6 +3,8 @@ package com.intellij.plugin.gamification.actions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Splitter
+import com.intellij.plugin.gamification.listeners.GameEvent
+import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.services.RewardInfoItem
 import com.intellij.plugin.gamification.services.RewardStatisticsService
 import com.intellij.ui.ScrollPaneFactory
@@ -86,11 +88,6 @@ class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
         val clearButton = JButton("Clear Stats")
         clearButton.addActionListener {
             stats().clear()
-            progress.value = stats().getProgress()
-            levelInfo.text = "Level: ${stats().getLevel()}"
-            table.setModelAndUpdateColumns(
-                ListTableModel(COLUMNS, stats().getRewardInfo(), 0)
-            )
         }
 
         contentPanel.add(JLabel("Your progress: "), BorderLayout.NORTH)
@@ -102,6 +99,17 @@ class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
         splitter.isShowDividerControls = true
         splitter.firstComponent = contentPanel
         splitter.secondComponent = tablePanel
+
+        stats().addListener(object : GameEventListener {
+            override fun progressChanged(event: GameEvent) {
+                progress.value = event.progress
+                levelInfo.text = "Level: ${event.level}"
+                table.setModelAndUpdateColumns(
+                    ListTableModel(COLUMNS, stats().getRewardInfo(), 0)
+                )
+                repaint()
+            }
+        })
 
         return splitter
     }
