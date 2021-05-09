@@ -36,6 +36,17 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
     private fun getPublisher() =
         ApplicationManager.getApplication().messageBus.syncPublisher(GameEventListener.TOPIC)
 
+    fun addListener(listener: GameEventListener) {
+        ApplicationManager
+            .getApplication()
+            .messageBus
+            .connect()
+            .subscribe(
+                GameEventListener.TOPIC,
+                listener
+            )
+    }
+
     fun addEvent(logEvent: LogEvent) {
         val name = logEvent.event.data["id"].toString()
         val oldCount = state.countFeatureUsages.getOrDefault(name, 0)

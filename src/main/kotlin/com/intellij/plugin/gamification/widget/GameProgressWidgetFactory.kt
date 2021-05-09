@@ -34,12 +34,9 @@ class GameProgressWidgetFactory : StatusBarWidgetFactory {
             RewardStatisticsService.getInstance().getCurrentGameEvent()
         )
 
-        ApplicationManager
-            .getApplication()
-            .messageBus
-            .connect()
-            .subscribe(
-                GameEventListener.TOPIC,
+        RewardStatisticsService
+            .getInstance()
+            .addListener(
                 object : GameEventListener {
                     override fun levelChanged(event: GameEvent) {
                         panel.updateState(event)
