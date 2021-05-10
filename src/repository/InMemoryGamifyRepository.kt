@@ -1,11 +1,16 @@
 package com.intellij.gamify.server.repository
 
 import com.intellij.gamify.server.entities.User
-import com.intellij.gamify.server.entities.UserDraft
+import com.intellij.gamify.server.entities.UserInfo
 
 class InMemoryGamifyRepository : GamifyRepository {
 
-    private val users = mutableListOf<User>()
+    private val users = mutableListOf<User>(
+        User(0, UserInfo("Kirill", 100)),
+        User(1, UserInfo("Katya", 200)),
+        User(2, UserInfo("Vitaliy", 300)),
+        User(3, UserInfo("Alexey", 400)),
+    )
 
     override fun getAllUsers(): List<User> {
         return users
@@ -15,11 +20,10 @@ class InMemoryGamifyRepository : GamifyRepository {
         return users.firstOrNull { it.id == id }
     }
 
-    override fun addUser(draft: UserDraft): User {
+    override fun addUser(userInfo: UserInfo): User {
         val user = User(
             id = users.size + 1,
-            name = draft.name,
-            points = draft.points
+            userInfo = userInfo
         )
         users.add(user)
         return user
@@ -29,12 +33,12 @@ class InMemoryGamifyRepository : GamifyRepository {
         return users.removeIf { it.id == id }
     }
 
-    override fun updateUser(id: Int, draft: UserDraft): Boolean {
+    override fun updateUser(id: Int, userInfo: UserInfo): Boolean {
         val user = users.firstOrNull { it.id == id }
             ?: return false
 
-        user.name = draft.name
-        user.points = draft.points
+        user.userInfo.name = userInfo.name
+        user.userInfo.points = userInfo.points
         return true
     }
 }

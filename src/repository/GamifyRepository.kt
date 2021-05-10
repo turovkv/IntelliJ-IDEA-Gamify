@@ -1,16 +1,16 @@
 package com.intellij.gamify.server.repository
 
 import com.intellij.gamify.server.entities.User
-import com.intellij.gamify.server.entities.UserDraft
+import com.intellij.gamify.server.entities.UserInfo
 
 interface GamifyRepository {
     fun getAllUsers(): List<User>
 
     fun getUser(id: Int): User?
 
-    fun addUser(draft: UserDraft): User
+    fun addUser(userInfo: UserInfo): User
 
     fun removeUser(id: Int): Boolean
 
-    fun updateUser(id: Int, draft: UserDraft): Boolean
+    fun updateUser(id: Int, userInfo: UserInfo): Boolean
 }
