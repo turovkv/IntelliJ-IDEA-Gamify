@@ -2,7 +2,6 @@ package com.intellij.plugin.gamification.services
 
 import com.intellij.featureStatistics.ProductivityFeaturesRegistry
 import com.intellij.internal.statistic.eventLog.LogEvent
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
@@ -12,6 +11,7 @@ import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanics
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
+import com.intellij.util.EventDispatcher
 
 @State(
     name = "RewardStats",
@@ -35,18 +35,14 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
     private var state = PluginState()
     private val mechanics: GameMechanics = GameMechanicsImpl()
 
-    private fun getPublisher() =
-        ApplicationManager.getApplication().messageBus.syncPublisher(GameEventListener.TOPIC)
+    private val gameEventListener = EventDispatcher.create(
+        GameEventListener::class.java
+    )
 
-    fun addListener(listener: GameEventListener, project: Project? = null) {
-        val busProvider = project ?: ApplicationManager.getApplication()
-        busProvider
-            .messageBus
-            .connect()
-            .subscribe(
-                GameEventListener.TOPIC,
-                listener
-            )
+    private fun getPublisher() = gameEventListener.multicaster
+
+    fun addListener(listener: GameEventListener, project: Project) {
+        gameEventListener.addListener(listener, project)
     }
 
     fun addEvent(logEvent: LogEvent) {

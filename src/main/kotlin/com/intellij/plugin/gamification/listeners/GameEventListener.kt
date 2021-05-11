@@ -1,11 +1,8 @@
 package com.intellij.plugin.gamification.listeners
 
-import com.intellij.util.messages.Topic
+import java.util.EventListener
 
-interface GameEventListener {
-    companion object {
-        val TOPIC = Topic(GameEventListener::class.java)
-    }
+interface GameEventListener : EventListener {
 
     /**
      * Called when a level has changed.

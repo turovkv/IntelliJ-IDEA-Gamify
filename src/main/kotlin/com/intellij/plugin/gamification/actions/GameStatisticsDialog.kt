@@ -21,7 +21,7 @@ import javax.swing.JPanel
 import javax.swing.JProgressBar
 import javax.swing.ListSelectionModel
 
-class GameStatisticsDialog(private val project: Project?) : DialogWrapper(project, true) {
+class GameStatisticsDialog(private val project: Project) : DialogWrapper(project, true) {
     private companion object {
         object Dialog {
             const val with = 400
