@@ -9,6 +9,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.intellij.plugin.gamification.services.RewardStatisticsService"/>
+        <applicationService serviceImplementation="com.intellij.plugin.gamification.services.NetworkService"/>
         <statusBarWidgetFactory id="gameProgressWidget" implementation="com.intellij.plugin.gamification.widget.GameProgressWidgetFactory" order="last"/>
     </extensions>
 

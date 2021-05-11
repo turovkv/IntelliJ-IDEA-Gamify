@@ -12,6 +12,8 @@ import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanics
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @State(
     name = "RewardStats",
@@ -85,6 +87,9 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
         (GameMechanicsImpl.maxProgress * state.pointsOnLevel) / mechanics.maxPointsOnLevel(state.level)
 
     fun getRewardInfo(): List<RewardInfoItem> {
+        GlobalScope.launch {
+            println(NetworkService.getInstance().getUsers())
+        }
         return state.pointsPerFeature.map {
             val dname = getDisplayName(it.key)
             if (dname != null) {
