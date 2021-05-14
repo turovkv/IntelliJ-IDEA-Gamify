@@ -67,10 +67,9 @@ class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
         return "#com.intellij.plugin.gamification.actions.GameStatisticsDialog"
     }
 
-    private fun stats() = RewardStatisticsService.getInstance()
-
     override fun createCenterPanel(): JPanel {
-        val rewards = stats().getRewardInfo()
+        val stats = RewardStatisticsService.getInstance()
+        val rewards = stats.getRewardInfo()
         val table = TableView(ListTableModel(COLUMNS, rewards, 0))
         table.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
 
@@ -82,12 +81,12 @@ class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
 
         val progress = JProgressBar()
         progress.isStringPainted = true
-        progress.value = stats().getProgress()
+        progress.value = stats.getProgress()
 
-        val levelInfo = JLabel("Level: " + stats().getLevel())
+        val levelInfo = JLabel("Level: " + stats.getLevel())
         val clearButton = JButton("Clear Stats")
         clearButton.addActionListener {
-            stats().clear()
+            stats.clear()
         }
 
         contentPanel.add(JLabel("Your progress: "), BorderLayout.NORTH)
@@ -100,13 +99,13 @@ class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
         splitter.firstComponent = contentPanel
         splitter.secondComponent = tablePanel
 
-        stats().addListener(
+        stats.addListener(
             object : GameEventListener {
                 override fun progressChanged(event: GameEvent) {
                     progress.value = event.progress
                     levelInfo.text = "Level: ${event.level}"
                     table.setModelAndUpdateColumns(
-                        ListTableModel(COLUMNS, stats().getRewardInfo(), 0)
+                        ListTableModel(COLUMNS, stats.getRewardInfo(), 0)
                     )
                     repaint()
                 }
