@@ -2,11 +2,11 @@ package com.intellij.plugin.gamification.services
 
 import com.intellij.featureStatistics.ProductivityFeaturesRegistry
 import com.intellij.internal.statistic.eventLog.LogEvent
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
-import com.intellij.openapi.project.Project
 import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanics
@@ -35,14 +35,14 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
     private var state = PluginState()
     private val mechanics: GameMechanics = GameMechanicsImpl()
 
-    private val gameEventListener = EventDispatcher.create(
+    private val gameEventDispatcher = EventDispatcher.create(
         GameEventListener::class.java
     )
 
-    private fun getPublisher() = gameEventListener.multicaster
+    private fun getPublisher() = gameEventDispatcher.multicaster
 
-    fun addListener(listener: GameEventListener, project: Project) {
-        gameEventListener.addListener(listener, project)
+    fun addListener(listener: GameEventListener, disposable: Disposable) {
+        gameEventDispatcher.addListener(listener, disposable)
     }
 
     fun addEvent(logEvent: LogEvent) {

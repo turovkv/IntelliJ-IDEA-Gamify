@@ -1,6 +1,5 @@
 package com.intellij.plugin.gamification.widget
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.CustomStatusBarWidget
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
@@ -17,7 +16,7 @@ import java.awt.Graphics
 import javax.swing.BorderFactory
 import javax.swing.JComponent
 
-class GameProgressPanel(project: Project) : TextPanel(), CustomStatusBarWidget {
+class GameProgressPanel : TextPanel(), CustomStatusBarWidget {
     private var myStatusBar: StatusBar? = null
     private var progress: Int = 0
     private var level: Int = 0
@@ -100,7 +99,7 @@ class GameProgressPanel(project: Project) : TextPanel(), CustomStatusBarWidget {
                         updateState(event)
                     }
                 },
-                project
+                this
             )
     }
 }

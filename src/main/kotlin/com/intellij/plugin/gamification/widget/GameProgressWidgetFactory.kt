@@ -27,7 +27,7 @@ class GameProgressWidgetFactory : StatusBarWidgetFactory {
     }
 
     override fun createWidget(project: Project): StatusBarWidget {
-        val panel = GameProgressPanel(project)
+        val panel = GameProgressPanel()
         object : ClickListener() {
             override fun onClick(event: MouseEvent, clickCount: Int): Boolean {
                 GameStatisticsDialog(project).show()
