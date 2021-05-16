@@ -2,7 +2,7 @@ package com.intellij.gamify.server.routes
 
 import com.intellij.gamify.server.entities.UserInfo
 import com.intellij.gamify.server.repository.GamifyRepository
-import com.intellij.gamify.server.repository.InMemoryGamifyRepository
+import com.intellij.gamify.server.repository.RepositoryException
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -12,7 +12,7 @@ import io.ktor.routing.*
 fun Route.basicRouting(repository: GamifyRepository) {
     route("/users") {
         get("") {
-            call.respond(repository.getAllUsers())
+            call.respond(repository.getAllUserInfos())
         }
 
         get("{id}") {
@@ -26,42 +26,52 @@ fun Route.basicRouting(repository: GamifyRepository) {
                 return@get
             }
 
-            val user = repository.getUser(id)
-
-            if (user == null) {
+            try {
+                val user = repository.getUserById(id)
+                call.respond(user)
+            } catch (e: RepositoryException) {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    "found no user for the provided id $id"
+                    e.localizedMessage
                 )
-            } else {
-                call.respond(user)
             }
         }
 
         post("") {
-            val userDraft = call.receive<UserInfo>()
-            val user = repository.addUser(userDraft)
-            call.respond(user.id)
+            val userInfo = call.receive<UserInfo>()
+
+            try {
+                val id: Int = repository.addUser(userInfo)
+                call.respond(id)
+            } catch (e: RepositoryException) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    e.localizedMessage
+                )
+                return@post
+            }
         }
 
         put("{id}") {
-            val userDraft = call.receive<UserInfo>()
             val userId = call.parameters["id"]?.toIntOrNull()
 
             if (userId == null) {
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    "id parameter has to be a number!")
+                    "id parameter has to be a number!"
+                )
                 return@put
             }
 
-            val updated = repository.updateUser(userId, userDraft)
-            if (updated) {
+            try {
+                val userInfo = call.receive<UserInfo>()
+                repository.updateUser(userId, userInfo)
                 call.respond(HttpStatusCode.OK)
-            } else {
+            } catch (e: RepositoryException) {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    "found no user with the id $userId")
+                    e.localizedMessage
+                )
             }
         }
 
@@ -71,22 +81,23 @@ fun Route.basicRouting(repository: GamifyRepository) {
             if (userId == null) {
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    "id parameter has to be a number!")
+                    "id parameter has to be a number!"
+                )
                 return@delete
             }
 
-            val removed = repository.removeUser(userId)
-            if (removed) {
+            try {
+                repository.deleteUser(userId)
                 call.respond(HttpStatusCode.OK)
-            } else {
+            } catch (e: RepositoryException) {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    "found no user with the id $userId")
+                    "found no user with the id $userId"
+                )
             }
         }
     }
 }
-
 
 fun Application.registerBasicRoutes(repository: GamifyRepository) {
     routing {
