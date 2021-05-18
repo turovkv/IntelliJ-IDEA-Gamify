@@ -24,6 +24,7 @@ fun Route.notificationRouting(repository: GamifyRepository) {
             }
 
             try {
+                repository.checkAccess(id, call.principal<UserIdPrincipal>()?.name)
                 call.respond(repository.getNotifications(id))
             } catch (e: RepositoryException) {
                 call.respond(
@@ -46,6 +47,7 @@ fun Route.notificationRouting(repository: GamifyRepository) {
             val notification = call.receive<Notification>()
 
             try {
+                repository.checkAccess(idFrom, call.principal<UserIdPrincipal>()?.name)
                 repository.addNotification(idFrom, notification)
             } catch (e: RepositoryException) {
                 call.respond(
@@ -89,6 +91,7 @@ fun Route.notificationRouting(repository: GamifyRepository) {
 
             val idTo = call.receive<Int>()
             try {
+                repository.checkAccess(idFrom, call.principal<UserIdPrincipal>()?.name)
                 repository.subscribe(idFrom, idTo)
                 call.respond(HttpStatusCode.OK)
             } catch (e: RepositoryException) {
@@ -111,6 +114,7 @@ fun Route.notificationRouting(repository: GamifyRepository) {
 
             val idTo = call.receive<Int>()
             try {
+                repository.checkAccess(idFrom, call.principal<UserIdPrincipal>()?.name)
                 repository.unsubscribe(idFrom, idTo)
                 call.respond(HttpStatusCode.OK)
             } catch (e: RepositoryException) {

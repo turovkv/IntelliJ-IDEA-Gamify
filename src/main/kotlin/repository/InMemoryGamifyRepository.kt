@@ -117,6 +117,15 @@ class InMemoryGamifyRepository : GamifyRepository {
         return null
     }
 
+    override fun checkAccess(id: Int, name: String?) {
+        if (name == null) {
+            throw RepositoryException("Try access with no name")
+        }
+        if (id != getIdByName(name)) {
+            throw RepositoryException("Illegal access")
+        }
+    }
+
     override fun addEmptyUser(credential: UserPasswordCredential): Int = withOnAddLock {
         if (nameToId.contains(credential.name) || hashedPaswords.contains(credential.name)) {
             throw RepositoryException("User with name ${credential.name} already exists")

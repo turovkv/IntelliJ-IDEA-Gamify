@@ -11,6 +11,7 @@ interface GamifyRepository {
 
     fun addEmptyUser(credential: UserPasswordCredential): Int
     fun authenticate(credential: UserPasswordCredential): UserIdPrincipal?
+    fun checkAccess(id: Int, name: String?)
 
     // authorised
     fun deleteUser(id: Int)

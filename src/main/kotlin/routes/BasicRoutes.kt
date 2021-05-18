@@ -57,61 +57,70 @@ fun Route.basicRouting(repository: GamifyRepository) {
             }
         }
 
+    }
+}
 
-        authenticate("auth-basic-hashed") {
+fun Route.basicRoutingWithAuth(repository: GamifyRepository) {
+    route("/users") {
 
-            //updateUser
-            put("{id}") {
-                val userId = call.parameters["id"]?.toIntOrNull()
+        //updateUser
+        put("{id}") {
+            val userId = call.parameters["id"]?.toIntOrNull()
 
-                if (userId == null) {
-                    call.respond(
-                        HttpStatusCode.BadRequest,
-                        "id parameter has to be a number!"
-                    )
-                    return@put
-                }
-
-                try {
-                    val userInfo = call.receive<UserInfo>()
-                    repository.updateUser(userId, userInfo)
-                    call.respond(HttpStatusCode.OK)
-                } catch (e: RepositoryException) {
-                    call.respond(
-                        HttpStatusCode.NotFound,
-                        e.localizedMessage
-                    )
-                }
+            if (userId == null) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    "id parameter has to be a number!"
+                )
+                return@put
             }
 
-            //deleteUser
-            delete("{id}") {
-                val userId = call.parameters["id"]?.toIntOrNull()
+            try {
+                val userInfo = call.receive<UserInfo>()
+                repository.checkAccess(userId, call.principal<UserIdPrincipal>()?.name)
+                repository.updateUser(userId, userInfo)
+                call.respond(HttpStatusCode.OK)
+            } catch (e: RepositoryException) {
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    e.localizedMessage
+                )
+            }
+        }
 
-                if (userId == null) {
-                    call.respond(
-                        HttpStatusCode.BadRequest,
-                        "id parameter has to be a number!"
-                    )
-                    return@delete
-                }
+        //deleteUser
+        delete("{id}") {
+            val userId = call.parameters["id"]?.toIntOrNull()
 
-                try {
-                    repository.deleteUser(userId)
-                    call.respond(HttpStatusCode.OK)
-                } catch (e: RepositoryException) {
-                    call.respond(
-                        HttpStatusCode.NotFound,
-                        "found no user with the id $userId"
-                    )
-                }
+            if (userId == null) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    "id parameter has to be a number!"
+                )
+                return@delete
+            }
+
+
+            try {
+                repository.checkAccess(userId, call.principal<UserIdPrincipal>()?.name)
+                repository.deleteUser(userId)
+                call.respond(HttpStatusCode.OK)
+            } catch (e: RepositoryException) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    e.localizedMessage
+                )
             }
         }
     }
 }
 
+
 fun Application.registerBasicRoutes(repository: GamifyRepository) {
     routing {
         basicRouting(repository)
+        authenticate("auth-basic-hashed") {
+            basicRoutingWithAuth(repository)
+        }
     }
 }
