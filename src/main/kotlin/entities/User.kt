@@ -7,7 +7,8 @@ import java.util.concurrent.CopyOnWriteArraySet
 
 data class User(
     val id: Int,
-    var userInfo: UserInfo,
+    val name: String,
+    var userInfo: UserInfo = UserInfo(),
 
     var lastWatched: Timestamp = Timestamp(System.currentTimeMillis()),
     val notifications: Deque<NotificationWithTime> = ConcurrentLinkedDeque(),
@@ -15,7 +16,6 @@ data class User(
 )
 
 data class UserInfo(
-    val name: String,
-    val displayName: String,
-    val level: Int,
+    val displayName: String = "default",
+    val level: Int = 1,
 )

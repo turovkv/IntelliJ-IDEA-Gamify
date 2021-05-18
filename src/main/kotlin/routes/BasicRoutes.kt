@@ -4,6 +4,7 @@ import com.intellij.gamify.server.entities.UserInfo
 import com.intellij.gamify.server.repository.GamifyRepository
 import com.intellij.gamify.server.repository.RepositoryException
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -11,10 +12,13 @@ import io.ktor.routing.*
 
 fun Route.basicRouting(repository: GamifyRepository) {
     route("/users") {
+
+        //getAllUserInfos
         get("") {
             call.respond(repository.getAllUserInfos())
         }
 
+        //getUserInfoById
         get("{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
 
@@ -27,7 +31,7 @@ fun Route.basicRouting(repository: GamifyRepository) {
             }
 
             try {
-                val user = repository.getUserById(id)
+                val user = repository.getUserInfoById(id)
                 call.respond(user)
             } catch (e: RepositoryException) {
                 call.respond(
@@ -37,11 +41,12 @@ fun Route.basicRouting(repository: GamifyRepository) {
             }
         }
 
+        //addEmptyUser
         post("") {
-            val userInfo = call.receive<UserInfo>()
+            val credential = call.receive<UserPasswordCredential>()
 
             try {
-                val id: Int = repository.addUser(userInfo)
+                val id: Int = repository.addEmptyUser(credential)
                 call.respond(id)
             } catch (e: RepositoryException) {
                 call.respond(
@@ -52,48 +57,54 @@ fun Route.basicRouting(repository: GamifyRepository) {
             }
         }
 
-        put("{id}") {
-            val userId = call.parameters["id"]?.toIntOrNull()
 
-            if (userId == null) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    "id parameter has to be a number!"
-                )
-                return@put
+        authenticate("auth-basic-hashed") {
+
+            //updateUser
+            put("{id}") {
+                val userId = call.parameters["id"]?.toIntOrNull()
+
+                if (userId == null) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "id parameter has to be a number!"
+                    )
+                    return@put
+                }
+
+                try {
+                    val userInfo = call.receive<UserInfo>()
+                    repository.updateUser(userId, userInfo)
+                    call.respond(HttpStatusCode.OK)
+                } catch (e: RepositoryException) {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        e.localizedMessage
+                    )
+                }
             }
 
-            try {
-                val userInfo = call.receive<UserInfo>()
-                repository.updateUser(userId, userInfo)
-                call.respond(HttpStatusCode.OK)
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.NotFound,
-                    e.localizedMessage
-                )
-            }
-        }
+            //deleteUser
+            delete("{id}") {
+                val userId = call.parameters["id"]?.toIntOrNull()
 
-        delete("{id}") {
-            val userId = call.parameters["id"]?.toIntOrNull()
+                if (userId == null) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        "id parameter has to be a number!"
+                    )
+                    return@delete
+                }
 
-            if (userId == null) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    "id parameter has to be a number!"
-                )
-                return@delete
-            }
-
-            try {
-                repository.deleteUser(userId)
-                call.respond(HttpStatusCode.OK)
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.NotFound,
-                    "found no user with the id $userId"
-                )
+                try {
+                    repository.deleteUser(userId)
+                    call.respond(HttpStatusCode.OK)
+                } catch (e: RepositoryException) {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        "found no user with the id $userId"
+                    )
+                }
             }
         }
     }

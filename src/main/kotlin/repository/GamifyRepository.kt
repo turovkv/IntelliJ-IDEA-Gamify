@@ -1,20 +1,22 @@
 package com.intellij.gamify.server.repository
 
 import com.intellij.gamify.server.entities.Notification
-import com.intellij.gamify.server.entities.User
 import com.intellij.gamify.server.entities.UserInfo
+import io.ktor.auth.*
 
 interface GamifyRepository {
-    fun addUser(userInfo: UserInfo): Int
-    fun getAllUserInfos(): List<UserInfo>
+    fun getUserInfoById(id: Int): UserInfo
     fun getIdByName(name: String): Int
-    fun getUserById(id: Int): User
+    fun getAllUserInfos(): List<UserInfo>
+
+    fun addEmptyUser(credential: UserPasswordCredential): Int
+    fun authenticate(credential: UserPasswordCredential): UserIdPrincipal?
 
     // authorised
     fun deleteUser(id: Int)
     fun updateUser(id: Int, userInfo: UserInfo)
 
-    fun addEvent(id: Int, notification: Notification)
+    fun addNotification(id: Int, notification: Notification)
     fun subscribe(idFrom: Int, idTo: Int)
     fun unsubscribe(idFrom: Int, idTo: Int)
     fun getNotifications(id: Int): List<Notification>

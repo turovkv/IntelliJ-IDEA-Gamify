@@ -4,22 +4,37 @@ import com.intellij.gamify.server.entities.Notification
 import com.intellij.gamify.server.entities.NotificationWithTime
 import com.intellij.gamify.server.entities.User
 import com.intellij.gamify.server.entities.UserInfo
+import io.ktor.auth.*
+import io.ktor.util.*
+import java.security.MessageDigest
 import java.sql.Timestamp
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReadWriteLock
+import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 class InMemoryGamifyRepository : GamifyRepository {
-
-    private val users = ConcurrentHashMap(
+    private val digestFunction = getDigestFunction("SHA-256") { "ktor${it.length}" }
+    private val hashedPaswords: MutableMap<String, ByteArray> = ConcurrentHashMap(
         mapOf(
-            0 to User(0, UserInfo("Kirill", "Kirill", 1)),
-            1 to User(1, UserInfo("Katya", "Katya", 2)),
-            2 to User(2, UserInfo("Vitaliy", "Vitaliy", 3)),
-            3 to User(3, UserInfo("Alexey", "Alexey", 4)),
+            "0" to digestFunction("0"),
+            "1" to digestFunction("1"),
+            "2" to digestFunction("2"),
+            "3" to digestFunction("3"),
+        )
+    )
+
+    private val users: MutableMap<Int, User> = ConcurrentHashMap(
+        mapOf(
+            0 to User(0, "Kirill"),
+            1 to User(1, "Katya"),
+            2 to User(2, "Vitaliy"),
+            3 to User(3, "Alexey"),
         )
     )
     private var nextUserId = users.size
 
-    private val nameToId = ConcurrentHashMap(
+    private val nameToId: MutableMap<String, Int> = ConcurrentHashMap(
         mapOf(
             "Kirill" to 0,
             "Katya" to 1,
@@ -28,50 +43,111 @@ class InMemoryGamifyRepository : GamifyRepository {
         )
     )
 
-    override fun getAllUserInfos(): List<UserInfo> {
-        return users.values.map { it.userInfo }
+    private val lockOnAdd = ReentrantLock()
+    private val usersLocks: MutableMap<Int, ReadWriteLock> = ConcurrentHashMap(
+        mapOf(
+            0 to ReentrantReadWriteLock(),
+            1 to ReentrantReadWriteLock(),
+            2 to ReentrantReadWriteLock(),
+            3 to ReentrantReadWriteLock(),
+        )
+    )
+
+    private fun <T> withOnAddLock(action: () -> T): T {
+        lockOnAdd.lock()
+        try {
+            return action()
+        } finally {
+            lockOnAdd.unlock()
+        }
     }
 
-    override fun getUserById(id: Int): User {
+    private fun <T> withUserReadLock(id: Int, action: () -> T): T {
+        val lock = usersLocks[id]?.readLock() ?: throw RepositoryException("No user with id $id")
+        lock.lock()
+        try {
+            return action()
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    private fun <T> withUserWriteLock(id: Int, action: () -> T): T {
+        val lock = usersLocks[id]?.writeLock() ?: throw RepositoryException("No user with id $id")
+        lock.lock()
+        try {
+            return action()
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    private fun getUserById(id: Int): User {
         return users[id] ?: throw RepositoryException("No user with id $id")
     }
 
-    override fun getIdByName(name: String): Int {
-        return nameToId[name]
-            ?: throw RepositoryException("No user with name $name")
+
+    override fun getUserInfoById(id: Int): UserInfo = withUserReadLock(id) {
+        return@withUserReadLock getUserById(id).userInfo
     }
 
-    override fun addUser(userInfo: UserInfo): Int {
-        val user = User(
-            id = nextUserId,
-            userInfo = userInfo
-        )
+    override fun getAllUserInfos(): List<UserInfo> {
+        val list = arrayListOf<UserInfo>()
+        for (id in 0 until nextUserId) {
+            try {
+                withUserReadLock(id) {
+                    list.add(getUserById(id).userInfo)
+                }
+            } catch (e: RepositoryException) {
+            }
+        }
+        return list
+    }
 
-        if (nameToId.contains(userInfo.name)) {
-            throw RepositoryException("User with name ${userInfo.name} already exists")
+    override fun getIdByName(name: String): Int {
+        return nameToId[name] ?: throw RepositoryException("No user with name $name")
+    }
+
+    override fun authenticate(credential: UserPasswordCredential): UserIdPrincipal? {
+        val userPasswordHash = hashedPaswords[credential.name]
+        if (userPasswordHash != null && MessageDigest.isEqual(digestFunction(credential.password), userPasswordHash)) {
+            return UserIdPrincipal(credential.name)
         }
 
-        nameToId[userInfo.name] = nextUserId
-        users[nextUserId] = user
+        return null
+    }
+
+    override fun addEmptyUser(credential: UserPasswordCredential): Int = withOnAddLock {
+        if (nameToId.contains(credential.name) || hashedPaswords.contains(credential.name)) {
+            throw RepositoryException("User with name ${credential.name} already exists")
+        }
+        hashedPaswords[credential.name] = digestFunction(credential.password)
+
+        val user = User(
+            id = nextUserId,
+            name = credential.name
+        )
+        users[user.id] = user
+        nameToId[user.name] = user.id
+        usersLocks[user.id] = ReentrantReadWriteLock()
 
         nextUserId += 1
-        return user.id
+        return@withOnAddLock user.id
     }
 
-    override fun deleteUser(id: Int) {
+    override fun deleteUser(id: Int): Unit = withUserWriteLock(id) {
         val user = getUserById(id)
-        nameToId.remove(user.userInfo.name)
+        usersLocks.remove(id)
         users.remove(id)
+        nameToId.remove(user.name)
     }
 
-    override fun updateUser(id: Int, userInfo: UserInfo) {
+    override fun updateUser(id: Int, userInfo: UserInfo): Unit = withUserWriteLock(id) {
         val user = getUserById(id)
-        nameToId.remove(user.userInfo.name)
         user.userInfo = userInfo
-        nameToId[user.userInfo.name] = user.id
-    } // concurrency ((((
+    }
 
-    override fun addEvent(id: Int, notification: Notification) {
+    override fun addNotification(id: Int, notification: Notification): Unit = withUserWriteLock(id) {
         val user = getUserById(id)
         val notificationWithTime = NotificationWithTime(
             notification,
@@ -81,39 +157,41 @@ class InMemoryGamifyRepository : GamifyRepository {
         user.notifications.addLast(notificationWithTime)
     }
 
-    override fun subscribe(idFrom: Int, idTo: Int) {
+    override fun subscribe(idFrom: Int, idTo: Int): Unit = withUserWriteLock(idFrom) {
         val userFrom = getUserById(idFrom)
         if (!userFrom.subscribing.add(idTo)) {
             throw RepositoryException("UserId $idFrom already subscribed to $idTo")
         }
     }
 
-    override fun unsubscribe(idFrom: Int, idTo: Int) {
+    override fun unsubscribe(idFrom: Int, idTo: Int): Unit = withUserWriteLock(idFrom) {
         val userFrom = getUserById(idFrom)
         if (!userFrom.subscribing.remove(idTo)) {
             throw RepositoryException("UserId $idFrom not subscribed to $idTo")
         }
     }
 
-    override fun getNotifications(id: Int): List<Notification> {
+    override fun getNotifications(id: Int): List<Notification> = withUserReadLock(id) {
         val user = getUserById(id)
         val list = ArrayList<NotificationWithTime>()
         for (celebId in user.subscribing) {
-            val celeb = getUserById(celebId)
-            val it = celeb.notifications.descendingIterator()
-            while (it.hasNext()) {
-                val nWithTime = it.next()
-                if (nWithTime.serverTime.after(user.lastWatched)) {
-                    list.add(nWithTime)
-                } else {
-                    break
+            withUserReadLock(celebId) {
+                val celeb = getUserById(celebId)
+                val it = celeb.notifications.descendingIterator()
+                while (it.hasNext()) {
+                    val nWithTime = it.next()
+                    if (nWithTime.serverTime.after(user.lastWatched)) {
+                        list.add(nWithTime)
+                    } else {
+                        break
+                    }
                 }
-            }
+            } // exception?
         }
 
         user.lastWatched = Timestamp(System.currentTimeMillis())
 
-        return list
+        return@withUserReadLock list
             .asSequence()
             .sortedBy { it.serverTime }
             .map { it.notification }

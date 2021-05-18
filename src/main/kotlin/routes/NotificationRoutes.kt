@@ -4,6 +4,7 @@ import com.intellij.gamify.server.entities.Notification
 import com.intellij.gamify.server.repository.GamifyRepository
 import com.intellij.gamify.server.repository.RepositoryException
 import io.ktor.application.*
+import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -45,7 +46,7 @@ fun Route.notificationRouting(repository: GamifyRepository) {
             val notification = call.receive<Notification>()
 
             try {
-                repository.addEvent(idFrom, notification)
+                repository.addNotification(idFrom, notification)
             } catch (e: RepositoryException) {
                 call.respond(
                     HttpStatusCode.NotFound,
@@ -54,27 +55,27 @@ fun Route.notificationRouting(repository: GamifyRepository) {
             }
         }
 
-        get("subscribing/{id}") {
-            val id = call.parameters["id"]?.toIntOrNull()
-
-            if (id == null) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    "id parameter has to be a number"
-                )
-                return@get
-            }
-
-            try {
-                val user = repository.getUserById(id)
-                call.respond(user.subscribing.toList())
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.NotFound,
-                    e.localizedMessage
-                )
-            }
-        }
+//        get("subscribing/{id}") {
+//            val id = call.parameters["id"]?.toIntOrNull()
+//
+//            if (id == null) {
+//                call.respond(
+//                    HttpStatusCode.BadRequest,
+//                    "id parameter has to be a number"
+//                )
+//                return@get
+//            }
+//
+//            try {
+//                val user = repository.getUserById(id)
+//                call.respond(user.subscribing.toList())
+//            } catch (e: RepositoryException) {
+//                call.respond(
+//                    HttpStatusCode.NotFound,
+//                    e.localizedMessage
+//                )
+//            }
+//        }
 
         post("subscribing/{id}") {
             val idFrom = call.parameters["id"]?.toIntOrNull()
@@ -124,6 +125,8 @@ fun Route.notificationRouting(repository: GamifyRepository) {
 
 fun Application.registerNotificationRoutes(repository: GamifyRepository) {
     routing {
-        notificationRouting(repository)
+        authenticate("auth-basic-hashed") {
+            notificationRouting(repository)
+        }
     }
 }
