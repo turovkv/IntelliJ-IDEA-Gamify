@@ -33,6 +33,8 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:1.5.4")
     implementation("io.ktor:ktor-client-java:1.5.4")
     implementation("io.ktor:ktor-client-gson:1.5.4")
+    implementation("io.ktor:ktor-client-auth:1.5.4")
+    implementation("io.ktor:ktor-auth:1.5.4")
 }
 
 // Configure gradle-intellij-plugin plugin.
