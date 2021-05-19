@@ -26,7 +26,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 
-
 @State(
     name = "ClientState",
     storages = [Storage("ClientState.xml")]
@@ -54,13 +53,13 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
             serializer = GsonSerializer()
         }
         install(HttpTimeout) {
-            requestTimeoutMillis = 1000
+            requestTimeoutMillis = 1000 // constant TODO
             connectTimeoutMillis = 1000 // когда может случиться?
         }
         install(Auth) {
             basic {
                 username = state.login
-                password = getPassword(state.login) ?: "No password" // ???
+                password = getPassword(state.login) ?: "No password" // ??? TODO
             }
         }
     }
@@ -86,10 +85,11 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
     }
 
     private fun getPassword(user: String): String? {
-        return PasswordSafe.instance
+        return PasswordSafe
+            .instance
             .getPassword(
                 CredentialAttributes(NetworkService::class.java.name, user)
-            ) // what if null ?
+            ) // what if null ? TODO
     }
 
     suspend fun signUp(user: String, password: String) {
@@ -103,14 +103,13 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
             }.execute()
 
             if (response.status != HttpStatusCode.OK) {
-                println("Not OK :(")
+                println("Not OK :(") // TODO
                 return
             }
 
-            state.userId = response.readText().toInt()
-
-            savePassword(user, password)
+            state.userId = response.readText().toInt() // what if not int TODO
             state.login = user
+            savePassword(user, password)
             changeCredentials(user, password)
         } catch (e: HttpRequestTimeoutException) {
             println(e.stackTrace) // TODO
@@ -118,13 +117,12 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
     }
 
     suspend fun getUsers(): List<UserInfo>? {
-        return try {
-            client.get("$url/users")
+        try {
+            return client.get("$url/users")
         } catch (e: HttpRequestTimeoutException) {
-            null
+            return null // TODO
         }
     }
-
 
     override fun dispose() {
         client.close()
