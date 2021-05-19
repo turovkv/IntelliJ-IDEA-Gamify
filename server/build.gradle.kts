@@ -1,6 +1,10 @@
 plugins {
-    kotlin("jvm") version "1.5.0"
+    //kotlin("jvm") version "1.5.0"
     application
+}
+
+application {
+    mainClass.set("com.intellij.gamify.server.Application.kt")
 }
 
 group = "com.intellij.gamify.server"
@@ -8,6 +12,7 @@ version = "1"
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 val ktor_version: String by project
