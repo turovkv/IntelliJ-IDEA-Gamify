@@ -1,18 +1,10 @@
 plugins {
-    //kotlin("jvm") version "1.5.0"
+    kotlin("jvm")
     application
 }
 
 application {
-    mainClass.set("com.intellij.gamify.server.Application.kt")
-}
-
-group = "com.intellij.gamify.server"
-version = "1"
-
-repositories {
-    mavenCentral()
-    jcenter()
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
 
 val ktor_version: String by project
@@ -25,5 +17,5 @@ dependencies {
     implementation("io.ktor:ktor-auth:$ktor_version")
     implementation("io.ktor:ktor-gson:$ktor_version")
 
-    testImplementation( "io.ktor:ktor-server-tests:$ktor_version")
+    //testImplementation( "io.ktor:ktor-server-tests:$ktor_version")
 }

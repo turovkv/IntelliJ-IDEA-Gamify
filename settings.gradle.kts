@@ -1,5 +1,3 @@
-rootProject.name = "jetbrains-ide-features-gamification"
+rootProject.name = "gamify"
 
-include(
-    "server"
-)
+include("server")
