@@ -12,8 +12,6 @@ import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanics
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 @State(
     name = "RewardStats",
