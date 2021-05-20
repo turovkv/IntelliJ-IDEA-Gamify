@@ -1,15 +1,16 @@
 package com.intellij.plugin.gamification.widget
 
 import java.awt.BorderLayout
-import javax.swing.JPanel
+import javax.swing.JButton
 import javax.swing.JLabel
+import javax.swing.JPanel
 import javax.swing.JPasswordField
 import javax.swing.JTextField
-import javax.swing.JButton
 
 class SignInPanel {
 
     val signPanel = JPanel()
+
     companion object {
         private const val fieldSize = 20
     }
