@@ -20,9 +20,10 @@ import io.ktor.client.features.auth.providers.basic
 import io.ktor.client.features.feature
 import io.ktor.client.features.json.GsonSerializer
 import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
-import io.ktor.client.statement.HttpResponse
+import io.ktor.client.request.put
 import io.ktor.client.statement.HttpStatement
 import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
@@ -54,6 +55,11 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
     override fun loadState(state: ClientState) {
         this.state = state
     }
+
+    fun getMyId() = state.userId
+    fun getMyLogin() = state.login
+    fun getMyUserInfo() = state.userInfo
+    fun isSignedIn() = state.isSignedIn
 
     private val url = serverUrl
     private val client = HttpClient(CIO) {
@@ -103,29 +109,31 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
     }
 
     suspend fun signUp(user: String, password: String) {
-        val response: HttpResponse =
-            carefulRequest("signUp") {
-                return@carefulRequest client.post<HttpStatement>("$url/users") {
-                    contentType(ContentType.Application.Json)
-                    body = UserPasswordCredential(
-                        user,
-                        password
-                    )
-                }.execute()
+        val newId: Int = carefulRequest("signUp") {
+            return@carefulRequest client.post("$url/users") {
+                contentType(ContentType.Application.Json)
+                body = UserPasswordCredential(
+                    user,
+                    password
+                )
             }
-
-        try {
-            state.userId = response.readText().toInt()
-        } catch (e: NumberFormatException) {
-            throw NetworkServiceException(
-                "Failed to sign up, response is not an userId, its \"${response.readText()}\"", e
-            )
         }
 
         state.isSignedIn = true
+        state.userId = newId
         state.login = user
         setPassword(user, password)
         changeClientCredentials(user, password)
+    }
+
+    suspend fun updateUserInfo(userInfo: UserInfo) {
+        carefulRequest<HttpStatement>("updateUserInfo", true) {
+            client.put("$url/users/${state.userId}") {
+                contentType(ContentType.Application.Json)
+                body = userInfo
+            }
+        }
+        state.userInfo = userInfo
     }
 
     suspend fun getUsersInfos(): List<UserInfo> =
@@ -135,7 +143,31 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
 
     suspend fun getNotifications(): List<Notification> =
         carefulRequest("getNotifications", true) {
-            return@carefulRequest client.get("$url/notifications/${state.userId}")
+            return@carefulRequest client.get("$url/users/notifications/${state.userId}")
+        }
+
+    suspend fun addNotification(notification: Notification): Unit =
+        carefulRequest("addNotification", true) {
+            return@carefulRequest client.post("$url/users/notifications/${state.userId}") {
+                contentType(ContentType.Application.Json)
+                body = notification
+            }
+        }
+
+    suspend fun subscribe(idTo: Int): Unit =
+        carefulRequest("subscribe", true) {
+            return@carefulRequest client.post("$url/users/subscribing/${state.userId}") {
+                contentType(ContentType.Application.Json)
+                body = idTo
+            }
+        }
+
+    suspend fun unsubscribe(idTo: Int): Unit =
+        carefulRequest("unsubscribe", true) {
+            return@carefulRequest client.delete("$url/users/subscribing/${state.userId}") {
+                contentType(ContentType.Application.Json)
+                body = idTo
+            }
         }
 
     private suspend fun <T> carefulRequest(
@@ -144,7 +176,7 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
         request: suspend () -> T
     ): T {
         if (signedIn && !state.isSignedIn) {
-            throw NetworkServiceException("Failed to $requestName (you not signed in)")
+            throw NetworkServiceException("Failed to $requestName (you are not signed in)")
         }
         try {
             return request()
