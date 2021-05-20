@@ -12,7 +12,6 @@ class SubscribePanel {
         private const val fieldSize = 20
     }
 
-
     init {
         val lbUsername = JLabel("Find: ")
         subPanel.add(lbUsername)
