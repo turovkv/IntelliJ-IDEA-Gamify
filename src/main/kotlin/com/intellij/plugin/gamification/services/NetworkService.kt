@@ -110,7 +110,7 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
 
     suspend fun signUp(user: String, password: String) {
         val newId: Int = carefulRequest("signUp") {
-            return@carefulRequest client.post("$url/users") {
+            client.post("$url/users") {
                 contentType(ContentType.Application.Json)
                 body = UserPasswordCredential(
                     user,
@@ -138,17 +138,17 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
 
     suspend fun getUsersInfos(): List<UserInfo> =
         carefulRequest("getUsersInfos") {
-            return@carefulRequest client.get("$url/users")
+            client.get("$url/users")
         }
 
     suspend fun getNotifications(): List<Notification> =
         carefulRequest("getNotifications", true) {
-            return@carefulRequest client.get("$url/users/notifications/${state.userId}")
+            client.get("$url/users/notifications/${state.userId}")
         }
 
     suspend fun addNotification(notification: Notification): Unit =
         carefulRequest("addNotification", true) {
-            return@carefulRequest client.post("$url/users/notifications/${state.userId}") {
+            client.post("$url/users/notifications/${state.userId}") {
                 contentType(ContentType.Application.Json)
                 body = notification
             }
@@ -156,7 +156,7 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
 
     suspend fun subscribe(idTo: Int): Unit =
         carefulRequest("subscribe", true) {
-            return@carefulRequest client.post("$url/users/subscribing/${state.userId}") {
+            client.post("$url/users/subscribing/${state.userId}") {
                 contentType(ContentType.Application.Json)
                 body = idTo
             }
@@ -164,7 +164,7 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
 
     suspend fun unsubscribe(idTo: Int): Unit =
         carefulRequest("unsubscribe", true) {
-            return@carefulRequest client.delete("$url/users/subscribing/${state.userId}") {
+            client.delete("$url/users/subscribing/${state.userId}") {
                 contentType(ContentType.Application.Json)
                 body = idTo
             }

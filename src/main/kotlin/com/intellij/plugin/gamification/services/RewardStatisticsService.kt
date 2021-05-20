@@ -87,10 +87,6 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
         (GameMechanicsImpl.maxProgress * state.pointsOnLevel) / mechanics.maxPointsOnLevel(state.level)
 
     fun getRewardInfo(): List<RewardInfoItem> {
-        GlobalScope.launch {
-            println(NetworkService.getInstance().signUp("lol", "kek"))
-            println(NetworkService.getInstance().getUsersInfos())
-        }
         return state.pointsPerFeature.map {
             val dname = getDisplayName(it.key)
             if (dname != null) {
