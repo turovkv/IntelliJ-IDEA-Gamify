@@ -88,6 +88,7 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
 
     fun getRewardInfo(): List<RewardInfoItem> {
         GlobalScope.launch {
+            println(NetworkService.getInstance().signUp("lol", "kek"))
             println(NetworkService.getInstance().getUsersInfos())
         }
         return state.pointsPerFeature.map {

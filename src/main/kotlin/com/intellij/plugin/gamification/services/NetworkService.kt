@@ -14,6 +14,7 @@ import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.features.HttpRequestTimeoutException
 import io.ktor.client.features.HttpTimeout
+import io.ktor.client.features.ResponseException
 import io.ktor.client.features.auth.Auth
 import io.ktor.client.features.auth.providers.basic
 import io.ktor.client.features.feature
@@ -25,7 +26,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.HttpStatement
 import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 
 @State(
@@ -43,8 +43,10 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
     }
 
     class ClientState {
+        var isSignedIn: Boolean = false
         var userId: Int = -1
         var login: String = "No login"
+        var userInfo: UserInfo = UserInfo()
     }
 
     private var state = ClientState()
@@ -79,7 +81,7 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
                 password = newPassword
             }
         } else {
-            throw NetworkServiceException("Auth not installed on HttpClient")
+            throw NetworkServiceException("Auth feature not installed on HttpClient")
         }
     }
 
@@ -101,22 +103,16 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
     }
 
     suspend fun signUp(user: String, password: String) {
-        val response: HttpResponse
-        try {
-            response = client.post<HttpStatement>("$url/users") {
-                contentType(ContentType.Application.Json)
-                body = UserPasswordCredential(
-                    user,
-                    password
-                )
-            }.execute()
-        } catch (e: HttpRequestTimeoutException) {
-            throw NetworkServiceException("Failed to sign up, server didnt respond", e)
-        }
-
-        if (response.status != HttpStatusCode.OK) {
-            throw NetworkServiceException("Failed to sign up, response status ${response.status}")
-        }
+        val response: HttpResponse =
+            carefulRequest("signUp") {
+                return@carefulRequest client.post<HttpStatement>("$url/users") {
+                    contentType(ContentType.Application.Json)
+                    body = UserPasswordCredential(
+                        user,
+                        password
+                    )
+                }.execute()
+            }
 
         try {
             state.userId = response.readText().toInt()
@@ -126,18 +122,47 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
             )
         }
 
+        state.isSignedIn = true
         state.login = user
         setPassword(user, password)
         changeClientCredentials(user, password)
     }
 
-    suspend fun getUsersInfos(): List<UserInfo> {
+    suspend fun getUsersInfos(): List<UserInfo> =
+        carefulRequest("getUsersInfos") {
+            return@carefulRequest client.get("$url/users")
+        }
+
+    suspend fun getNotifications(): List<Notification> =
+        carefulRequest("getNotifications", true) {
+            return@carefulRequest client.get("$url/notifications/${state.userId}")
+        }
+
+    private suspend fun <T> carefulRequest(
+        requestName: String,
+        signedIn: Boolean = false,
+        request: suspend () -> T
+    ): T {
+        if (signedIn && !state.isSignedIn) {
+            throw NetworkServiceException("Failed to $requestName (you not signed in)")
+        }
         try {
-            return client.get("$url/users")
+            return request()
         } catch (e: HttpRequestTimeoutException) {
-            throw NetworkServiceException("Failed to getUsersInfos (timeout)", e)
+            throw NetworkServiceException("Failed to $requestName (server did not respond)", e)
         } catch (e: NoTransformationFoundException) { // not sure
-            throw NetworkServiceException("Failed to getUsersInfos (invalid data)", e)
+            throw NetworkServiceException("Failed to $requestName (invalid data)", e)
+        } catch (e: ResponseException) {
+            try {
+                val errorMessage: String = e.response.readText()
+                if (errorMessage.isNotEmpty()) {
+                    throw NetworkServiceException("Failed to $requestName ($errorMessage)")
+                } else {
+                    throw IllegalStateException("")
+                }
+            } catch (ignored: IllegalStateException) {
+                throw NetworkServiceException("Failed to $requestName (response status is not OK)", e)
+            }
         }
     }
 
@@ -147,6 +172,10 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
 }
 
 data class UserInfo(
-        val displayName: String = "default",
-        val level: Int = 1,
+    val displayName: String = "default",
+    val level: Int = 1,
+)
+
+data class Notification(
+    val text: String,
 )
