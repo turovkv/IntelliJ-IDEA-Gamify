@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification.widget;
+package com.intellij.plugin.gamification.widget
 
 import java.awt.BorderLayout
 import javax.swing.JPanel
@@ -6,29 +6,27 @@ import javax.swing.JLabel
 import javax.swing.JPasswordField
 import javax.swing.JTextField
 import javax.swing.JButton
-import java.awt.GridLayout
-
 
 class SignInPanel {
 
-    val signInPanel = JPanel()
+    val signPanel = JPanel()
+    companion object {
+        private const val fieldSize = 20
+    }
 
     init {
 //        signInPanel.layout = GridLayout()
 
         val lbLogin = JLabel("Login: ")
-        signInPanel.add(lbLogin, BorderLayout.NORTH)
+        signPanel.add(lbLogin, BorderLayout.NORTH)
 
-
-        val tfUsername = JTextField(20)
-        signInPanel.add(tfUsername, BorderLayout.NORTH)
-
-
+        val tfUsername = JTextField(fieldSize)
+        signPanel.add(tfUsername, BorderLayout.NORTH)
         val lbPassword = JLabel("Password: ")
-        signInPanel.add(lbPassword, BorderLayout.SOUTH)
+        signPanel.add(lbPassword, BorderLayout.SOUTH)
 
-        val pfPassword = JPasswordField(20)
-        signInPanel.add(pfPassword, BorderLayout.SOUTH)
+        val pfPassword = JPasswordField(fieldSize)
+        signPanel.add(pfPassword, BorderLayout.SOUTH)
 
 //        signInPanel.layout = GridLayout(0, 2, 10, 10)
 
@@ -40,6 +38,6 @@ class SignInPanel {
             println("login" + tfUsername.text + " password " + pfPassword.password)
         }
 
-        signInPanel.add(btnLogin)
+        signPanel.add(btnLogin)
     }
 }

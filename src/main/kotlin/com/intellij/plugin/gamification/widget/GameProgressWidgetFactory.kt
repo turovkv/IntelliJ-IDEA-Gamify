@@ -3,14 +3,17 @@ package com.intellij.plugin.gamification.widget
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import com.intellij.openapi.wm.*
+import com.intellij.openapi.wm.StatusBarWidget
+import com.intellij.openapi.wm.StatusBarWidgetFactory
+import com.intellij.openapi.wm.ToolWindowAnchor
+import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.openapi.wm.StatusBar
 import com.intellij.plugin.gamification.actions.GameStatisticsDialog
 import com.intellij.ui.ClickListener
 import com.intellij.ui.components.JBTabbedPane
 import com.intellij.ui.content.ContentFactory
 
 import java.awt.event.MouseEvent
-
 
 class GameProgressWidgetFactory : StatusBarWidgetFactory, DumbAware {
     override fun getId(): String {
@@ -51,7 +54,7 @@ class GameProgressWidgetFactory : StatusBarWidgetFactory, DumbAware {
                     val signIn = SignInPanel()
                     val subscribe = SubscribePanel()
 
-                    tabPane.add(panel1ID, signIn.signInPanel)
+                    tabPane.add(panel1ID, signIn.signPanel)
                     tabPane.add(panel2ID, GameStatisticsDialog(project).contentPanel)
                     tabPane.add(panel3ID, subscribe.subPanel)
 
