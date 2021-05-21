@@ -214,10 +214,14 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
     fun launchNotificationReceiver() {
         GlobalScope.launch {
             while (true) {
-                getNotifications().map {
-                    NOTIFICATION_GROUP
-                        .createNotification(it.text, NotificationType.INFORMATION)
-                        .notify(null);
+                try {
+                    getNotifications().map {
+                        NOTIFICATION_GROUP
+                            .createNotification(it.text, NotificationType.INFORMATION)
+                            .notify(null);
+                    }
+                } catch (e: NetworkServiceException) {
+                    println(e.localizedMessage)
                 }
                 delay(1000) // 1 sec for test
             }
