@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification.widget
+package com.intellij.plugin.gamification.toolWindow
 
 import java.awt.BorderLayout
 import javax.swing.JButton
@@ -16,7 +16,6 @@ class SignInPanel {
     }
 
     init {
-//        signInPanel.layout = GridLayout()
 
         val lbLogin = JLabel("Login: ")
         signPanel.add(lbLogin, BorderLayout.NORTH)
@@ -28,10 +27,6 @@ class SignInPanel {
 
         val pfPassword = JPasswordField(fieldSize)
         signPanel.add(pfPassword, BorderLayout.SOUTH)
-
-//        signInPanel.layout = GridLayout(0, 2, 10, 10)
-
-//        signInPanel.border = LineBorder(Color.GREEN)
 
         val btnLogin = JButton("Login")
 

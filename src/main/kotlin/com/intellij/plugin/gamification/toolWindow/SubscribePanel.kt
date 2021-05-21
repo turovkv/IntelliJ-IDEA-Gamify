@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification.widget
+package com.intellij.plugin.gamification.toolWindow
 
 import javax.swing.JButton
 import javax.swing.JLabel
