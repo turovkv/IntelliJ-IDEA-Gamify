@@ -4,14 +4,16 @@ import com.intellij.gamify.server.entities.Notification
 import com.intellij.gamify.server.entities.NotificationWithTime
 import com.intellij.gamify.server.entities.User
 import com.intellij.gamify.server.entities.UserInfo
-import io.ktor.auth.*
-import io.ktor.util.*
+import io.ktor.auth.UserIdPrincipal
+import io.ktor.auth.UserPasswordCredential
+import io.ktor.util.getDigestFunction
 import java.security.MessageDigest
 import java.sql.Timestamp
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReadWriteLock
 import java.util.concurrent.locks.ReentrantLock
 import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.withLock
 
 class InMemoryGamifyRepository : GamifyRepository {
     private val digestFunction = getDigestFunction("SHA-256") { "ktor${it.length}" }
@@ -53,39 +55,23 @@ class InMemoryGamifyRepository : GamifyRepository {
         )
     )
 
-    private fun <T> withOnAddLock(action: () -> T): T {
-        lockOnAdd.lock()
-        try {
-            return action()
-        } finally {
-            lockOnAdd.unlock()
-        }
-    }
-
     private fun <T> withUserReadLock(id: Int, action: () -> T): T {
         val lock = usersLocks[id]?.readLock() ?: throw RepositoryException("No user with id $id")
-        lock.lock()
-        try {
+        lock.withLock {
             return action()
-        } finally {
-            lock.unlock()
         }
     }
 
     private fun <T> withUserWriteLock(id: Int, action: () -> T): T {
         val lock = usersLocks[id]?.writeLock() ?: throw RepositoryException("No user with id $id")
-        lock.lock()
-        try {
+        lock.withLock {
             return action()
-        } finally {
-            lock.unlock()
         }
     }
 
     private fun getUserById(id: Int): User {
         return users[id] ?: throw RepositoryException("No user with id $id")
     }
-
 
     override fun getUserInfoById(id: Int): UserInfo = withUserReadLock(id) {
         return@withUserReadLock getUserById(id).userInfo
@@ -126,7 +112,7 @@ class InMemoryGamifyRepository : GamifyRepository {
         }
     }
 
-    override fun addEmptyUser(credential: UserPasswordCredential): Int = withOnAddLock {
+    override fun addEmptyUser(credential: UserPasswordCredential): Int = lockOnAdd.withLock {
         if (nameToId.contains(credential.name) || hashedPaswords.contains(credential.name)) {
             throw RepositoryException("User with name ${credential.name} already exists")
         }
@@ -141,7 +127,7 @@ class InMemoryGamifyRepository : GamifyRepository {
         usersLocks[user.id] = ReentrantReadWriteLock()
 
         nextUserId += 1
-        return@withOnAddLock user.id
+        return user.id
     }
 
     override fun deleteUser(id: Int): Unit = withUserWriteLock(id) {
