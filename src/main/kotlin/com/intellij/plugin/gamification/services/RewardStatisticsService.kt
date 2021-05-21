@@ -2,6 +2,7 @@ package com.intellij.plugin.gamification.services
 
 import com.intellij.featureStatistics.ProductivityFeaturesRegistry
 import com.intellij.internal.statistic.eventLog.LogEvent
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
@@ -12,6 +13,8 @@ import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanics
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
 import com.intellij.util.EventDispatcher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @State(
     name = "RewardStats",
@@ -70,6 +73,13 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
 
         if (addPoints != 0) {
             getPublisher().progressChanged(getCurrentGameEvent())
+        }
+        GlobalScope.launch {
+            try {
+                NetworkService.getInstance().addNotification(Notification(name))
+            } catch (e: NetworkServiceException) {
+                println("Error! -> " + e.localizedMessage)
+            }
         }
     }
 

@@ -3,6 +3,9 @@ package com.intellij.plugin.gamification.services
 import com.intellij.credentialStore.CredentialAttributes
 import com.intellij.credentialStore.Credentials
 import com.intellij.ide.passwordSafe.PasswordSafe
+import com.intellij.notification.NotificationDisplayType
+import com.intellij.notification.NotificationGroup
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
@@ -28,6 +31,10 @@ import io.ktor.client.statement.HttpStatement
 import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 
 @State(
     name = "ClientState",
@@ -41,6 +48,12 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
         private const val requestTimeoutMillisConf: Long = 1000
         private const val connectTimeoutMillisConf: Long = 1000
         private const val serverUrl = "http://0.0.0.0:8080"
+        val NOTIFICATION_GROUP =
+            NotificationGroup(
+                "Gamify",
+                NotificationDisplayType.BALLOON,
+                true
+            )
     }
 
     class ClientState {
@@ -194,6 +207,19 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
                 }
             } catch (ignored: IllegalStateException) {
                 throw NetworkServiceException("Failed to $requestName (response status is not OK)", e)
+            }
+        }
+    }
+
+    fun launchNotificationReceiver() {
+        GlobalScope.launch {
+            while (true) {
+                getNotifications().map {
+                    NOTIFICATION_GROUP
+                        .createNotification(it.text, NotificationType.INFORMATION)
+                        .notify(null);
+                }
+                delay(1000) // 1 sec for test
             }
         }
     }

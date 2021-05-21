@@ -1,11 +1,16 @@
 package com.intellij.plugin.gamification.toolWindow
 
+import com.intellij.plugin.gamification.services.NetworkService
+import com.intellij.plugin.gamification.services.NetworkServiceException
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.awt.BorderLayout
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JPasswordField
 import javax.swing.JTextField
+import javax.xml.bind.JAXBElement
 
 class SignInPanel {
 
@@ -32,6 +37,13 @@ class SignInPanel {
 
         btnLogin.addActionListener {
             println("login" + tfUsername.text + " password " + pfPassword.password)
+            GlobalScope.launch {
+                try {
+                    NetworkService.getInstance().signUp(tfUsername.text, pfPassword.password.toString())
+                } catch (e: NetworkServiceException) {
+                    println("Error! -> " + e.localizedMessage)
+                }
+            }
         }
 
         signPanel.add(btnLogin)
