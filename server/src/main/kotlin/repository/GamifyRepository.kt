@@ -9,7 +9,7 @@ interface GamifyRepository {
     fun getIdByName(name: String): Int
     fun getAllUserInfos(): List<UserInfo>
 
-    fun addEmptyUser(credential: UserPasswordCredential): Int
+    fun createUser(credential: UserPasswordCredential): Int
     fun authenticate(credential: UserPasswordCredential): UserIdPrincipal?
     fun checkAccess(id: Int, name: String?)
 

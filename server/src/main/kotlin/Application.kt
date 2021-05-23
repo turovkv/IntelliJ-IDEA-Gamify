@@ -1,5 +1,6 @@
 package com.intellij.gamify.server
 
+import com.intellij.gamify.server.entities.UserInfo
 import com.intellij.gamify.server.repository.GamifyRepository
 import com.intellij.gamify.server.repository.InMemoryGamifyRepository
 import com.intellij.gamify.server.routes.registerBasicRoutes
@@ -18,6 +19,15 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("Unused")
 fun Application.module() {
     val repository: GamifyRepository = InMemoryGamifyRepository()
+    repository.createUser(UserPasswordCredential("kirill", "kirill"))
+    repository.createUser(UserPasswordCredential("katya", "katya"))
+    repository.createUser(UserPasswordCredential("vitaliy", "vitaliy"))
+    repository.createUser(UserPasswordCredential("alexey", "alexey"))
+    repository.updateUser(0, UserInfo("kirill", 1))
+    repository.updateUser(1, UserInfo("katya", 2))
+    repository.updateUser(2, UserInfo("vitaliy", 3))
+    repository.updateUser(3, UserInfo("alexey", 4))
+
 
     install(CallLogging)
     install(DefaultHeaders)

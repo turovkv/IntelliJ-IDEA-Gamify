@@ -46,7 +46,7 @@ fun Route.basicRouting(repository: GamifyRepository) {
             val credential = call.receive<UserPasswordCredential>()
 
             try {
-                val id: Int = repository.addEmptyUser(credential)
+                val id: Int = repository.createUser(credential)
                 call.respond(id)
             } catch (e: RepositoryException) {
                 call.respond(

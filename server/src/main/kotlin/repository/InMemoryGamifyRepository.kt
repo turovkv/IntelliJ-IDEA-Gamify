@@ -17,43 +17,15 @@ import kotlin.concurrent.withLock
 
 class InMemoryGamifyRepository : GamifyRepository {
     private val digestFunction = getDigestFunction("SHA-256") { "ktor${it.length}" }
-    private val hashedPaswords: MutableMap<String, ByteArray> = ConcurrentHashMap(
-        mapOf(
-            "0" to digestFunction("0"),
-            "1" to digestFunction("1"),
-            "2" to digestFunction("2"),
-            "3" to digestFunction("3"),
-        )
-    )
+    private val hashedPaswords: MutableMap<String, ByteArray> = ConcurrentHashMap()
 
-    private val users: MutableMap<Int, User> = ConcurrentHashMap(
-        mapOf(
-            0 to User(0, "Kirill"),
-            1 to User(1, "Katya"),
-            2 to User(2, "Vitaliy"),
-            3 to User(3, "Alexey"),
-        )
-    )
+    private val users: MutableMap<Int, User> = ConcurrentHashMap()
     private var nextUserId = users.size
 
-    private val nameToId: MutableMap<String, Int> = ConcurrentHashMap(
-        mapOf(
-            "Kirill" to 0,
-            "Katya" to 1,
-            "Vitaliy" to 2,
-            "Alexey" to 3,
-        )
-    )
+    private val nameToId: MutableMap<String, Int> = ConcurrentHashMap()
 
     private val lockOnAdd = ReentrantLock()
-    private val usersLocks: MutableMap<Int, ReadWriteLock> = ConcurrentHashMap(
-        mapOf(
-            0 to ReentrantReadWriteLock(),
-            1 to ReentrantReadWriteLock(),
-            2 to ReentrantReadWriteLock(),
-            3 to ReentrantReadWriteLock(),
-        )
-    )
+    private val usersLocks: MutableMap<Int, ReadWriteLock> = ConcurrentHashMap()
 
     private fun <T> withUserReadLock(id: Int, action: () -> T): T {
         val lock = usersLocks[id]?.readLock() ?: throw RepositoryException("No user with id $id")
@@ -112,7 +84,7 @@ class InMemoryGamifyRepository : GamifyRepository {
         }
     }
 
-    override fun addEmptyUser(credential: UserPasswordCredential): Int = lockOnAdd.withLock {
+    override fun createUser(credential: UserPasswordCredential): Int = lockOnAdd.withLock {
         if (nameToId.contains(credential.name) || hashedPaswords.contains(credential.name)) {
             throw RepositoryException("User with name ${credential.name} already exists")
         }
