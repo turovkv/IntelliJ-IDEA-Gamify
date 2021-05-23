@@ -14,7 +14,6 @@ interface GamifyRepository {
     fun checkAccess(id: Int, name: String?)
 
     // authorised
-    fun deleteUser(id: Int)
     fun updateUser(id: Int, userInfo: UserInfo)
 
     fun addNotification(id: Int, notification: Notification)

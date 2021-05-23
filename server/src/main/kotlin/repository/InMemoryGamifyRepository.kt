@@ -17,7 +17,7 @@ import kotlin.concurrent.withLock
 
 class InMemoryGamifyRepository : GamifyRepository {
     private val digestFunction = getDigestFunction("SHA-256") { "ktor${it.length}" }
-    private val hashedPaswords: MutableMap<String, ByteArray> = ConcurrentHashMap()
+    private val usersHashedPasswords: MutableMap<String, ByteArray> = ConcurrentHashMap()
 
     private val users: MutableMap<Int, User> = ConcurrentHashMap()
     private var nextUserId = users.size
@@ -67,7 +67,7 @@ class InMemoryGamifyRepository : GamifyRepository {
     }
 
     override fun authenticate(credential: UserPasswordCredential): UserIdPrincipal? {
-        val userPasswordHash = hashedPaswords[credential.name]
+        val userPasswordHash = usersHashedPasswords[credential.name]
         if (userPasswordHash != null && MessageDigest.isEqual(digestFunction(credential.password), userPasswordHash)) {
             return UserIdPrincipal(credential.name)
         }
@@ -85,10 +85,10 @@ class InMemoryGamifyRepository : GamifyRepository {
     }
 
     override fun createUser(credential: UserPasswordCredential): Int = lockOnAdd.withLock {
-        if (nameToId.contains(credential.name) || hashedPaswords.contains(credential.name)) {
+        if (nameToId.contains(credential.name) || usersHashedPasswords.contains(credential.name)) {
             throw RepositoryException("User with name ${credential.name} already exists")
         }
-        hashedPaswords[credential.name] = digestFunction(credential.password)
+        usersHashedPasswords[credential.name] = digestFunction(credential.password)
 
         val user = User(
             id = nextUserId,
@@ -100,13 +100,6 @@ class InMemoryGamifyRepository : GamifyRepository {
 
         nextUserId += 1
         return user.id
-    }
-
-    override fun deleteUser(id: Int): Unit = withUserWriteLock(id) {
-        val user = getUserById(id)
-        usersLocks.remove(id)
-        users.remove(id)
-        nameToId.remove(user.name)
     }
 
     override fun updateUser(id: Int, userInfo: UserInfo): Unit = withUserWriteLock(id) {

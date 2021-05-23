@@ -10,7 +10,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
-fun Route.basicRouting(repository: GamifyRepository) {
+private fun Route.basicRouting(repository: GamifyRepository) {
     route("/users") {
 
         //getAllUserInfos
@@ -60,7 +60,7 @@ fun Route.basicRouting(repository: GamifyRepository) {
     }
 }
 
-fun Route.basicRoutingWithAuth(repository: GamifyRepository) {
+private fun Route.basicRoutingWithAuth(repository: GamifyRepository) {
     route("/users") {
 
         //updateUser
@@ -83,31 +83,6 @@ fun Route.basicRoutingWithAuth(repository: GamifyRepository) {
             } catch (e: RepositoryException) {
                 call.respond(
                     HttpStatusCode.NotFound,
-                    e.localizedMessage
-                )
-            }
-        }
-
-        //deleteUser
-        delete("{id}") {
-            val userId = call.parameters["id"]?.toIntOrNull()
-
-            if (userId == null) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    "id parameter has to be a number!"
-                )
-                return@delete
-            }
-
-
-            try {
-                repository.checkAccess(userId, call.principal<UserIdPrincipal>()?.name)
-                repository.deleteUser(userId)
-                call.respond(HttpStatusCode.OK)
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
                     e.localizedMessage
                 )
             }

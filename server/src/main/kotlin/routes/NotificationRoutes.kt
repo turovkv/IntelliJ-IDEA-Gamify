@@ -10,7 +10,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
-fun Route.notificationRouting(repository: GamifyRepository) {
+private fun Route.notificationRouting(repository: GamifyRepository) {
     route("/users") {
         get("notifications/{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
