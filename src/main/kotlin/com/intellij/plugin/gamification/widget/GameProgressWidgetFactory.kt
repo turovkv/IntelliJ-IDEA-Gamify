@@ -6,7 +6,7 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.StatusBarWidgetFactory
-import com.intellij.plugin.gamification.toolWindow.GameToolWindow
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.ClickListener
 import java.awt.event.MouseEvent
 
@@ -31,9 +31,9 @@ class GameProgressWidgetFactory : StatusBarWidgetFactory, DumbAware {
         val panel = GameProgressPanel()
         object : ClickListener() {
             override fun onClick(event: MouseEvent, clickCount: Int): Boolean {
-//                GameStatisticsDialog(project).show()
-                val toolWindow = GameToolWindow(project)
-                toolWindow.addWindow()
+                val toolWindowManager = ToolWindowManager.getInstance(project)
+                val toolWindow = toolWindowManager.getToolWindow("Game")
+                toolWindow?.activate(null)
                 return true
             }
         }.installOn(panel, true)

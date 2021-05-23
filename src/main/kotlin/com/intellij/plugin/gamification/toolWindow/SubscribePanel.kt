@@ -1,5 +1,7 @@
 package com.intellij.plugin.gamification.toolWindow
 
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -13,18 +15,28 @@ class SubscribePanel {
     }
 
     init {
+
+        val layout = GridBagLayout()
+        val gbc = GridBagConstraints()
+        subPanel.layout = layout
+
         val lbUsername = JLabel("Find: ")
-        subPanel.add(lbUsername)
-
         val tfUsername = JTextField(fieldSize)
-        subPanel.add(tfUsername)
-
         val btnLogin = JButton("Subscribe")
 
         btnLogin.addActionListener {
-            println("Try to find user:" + tfUsername.text)
+            println("Try to find user: " + tfUsername.text)
         }
 
-        subPanel.add(btnLogin)
+        gbc.fill = GridBagConstraints.HORIZONTAL
+        gbc.gridx = 0
+        gbc.gridy = 0
+        subPanel.add(lbUsername, gbc)
+        gbc.gridx = 1
+        gbc.gridy = 0
+        subPanel.add(tfUsername, gbc)
+        gbc.gridx = 1
+        gbc.gridy = 1
+        subPanel.add(btnLogin, gbc)
     }
 }

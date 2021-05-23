@@ -7,6 +7,7 @@ import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.services.RewardInfoItem
 import com.intellij.plugin.gamification.services.RewardStatisticsService
+import com.intellij.plugin.gamification.ui.ProgressCircleUI
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.table.TableView
@@ -14,15 +15,34 @@ import com.intellij.util.ui.ColumnInfo
 import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.ListTableModel
 import java.awt.BorderLayout
+import java.awt.Color
 import java.awt.Dimension
+import java.awt.Font
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
+import java.awt.event.ActionListener
+import java.util.Random
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JProgressBar
 import javax.swing.ListSelectionModel
+import javax.swing.SwingConstants
+import kotlin.Comparator
 
-class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
+class GameStatisticsDialog(project: Project?, listener: ActionListener?) : DialogWrapper(project, true) {
+
+    val splitter = Splitter(true)
+    val list = listener
+
     private companion object {
+        const val rgbMax = 256
+        const val rgbMax1 = 254
+        const val rgbMax2 = 255
+        const val rand1 = 176
+        const val rand2 = 213
+        const val textSize = 24
+
         object Dialog {
             const val with = 400
             const val height = 300
@@ -77,24 +97,68 @@ class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
         tablePanel.add(ScrollPaneFactory.createScrollPane(table), BorderLayout.CENTER)
         ScrollingUtil.ensureSelectionExists(table)
 
-        val contentPanel = JPanel(BorderLayout())
+        val contentPanel = JPanel()
+        val layout = GridBagLayout()
+        val gbc = GridBagConstraints()
+        contentPanel.layout = layout
 
         val progress = JProgressBar()
         progress.isStringPainted = true
         progress.value = stats.getProgress()
 
-        val levelInfo = JLabel("Level: " + stats.getLevel())
+        val statsInfo = JLabel("Level: " + stats.getLevel().toString(), SwingConstants.CENTER)
+        statsInfo.font = Font("Calibri", Font.PLAIN, textSize)
         val clearButton = JButton("Clear Stats")
-        clearButton.addActionListener {
-            stats.clear()
+        val logOutButton = JButton("Log Out")
+
+        val progress1: JProgressBar = object : JProgressBar() {
+            override fun updateUI() {
+                super.updateUI()
+                setUI(ProgressCircleUI())
+            }
+        }
+        var level = stats.getLevel()
+
+        val rnd = Random()
+        var temp = level.toLong()
+        rnd.setSeed(temp)
+        var a = rnd.nextInt() % rgbMax
+        var b = (a - temp * rand1) % rgbMax2
+        var c = (b + temp * rand2) % rgbMax1
+
+        progress1.foreground = Color(kotlin.math.abs(a), kotlin.math.abs(b).toInt(), kotlin.math.abs(c).toInt())
+        val model = progress.model
+        progress1.model = model
+
+        fun update() {
+            level = stats.getLevel()
+
+            temp = level.toLong()
+            rnd.setSeed(temp)
+            a = rnd.nextInt() % rgbMax
+            b = (a - temp * rand1) % rgbMax2
+            c = (b + temp * rand2) % rgbMax1
+            progress1.foreground =
+                Color(kotlin.math.abs(a), kotlin.math.abs(b).toInt(), kotlin.math.abs(c).toInt())
         }
 
-        contentPanel.add(JLabel("Your progress: "), BorderLayout.NORTH)
-        contentPanel.add(progress, BorderLayout.CENTER)
-        contentPanel.add(clearButton, BorderLayout.SOUTH)
-        contentPanel.add(levelInfo, BorderLayout.EAST)
+        clearButton.addActionListener {
+            stats.clear()
+            update()
+        }
 
-        val splitter = Splitter(true)
+        logOutButton.addActionListener(list)
+
+        gbc.fill = GridBagConstraints.HORIZONTAL
+        gbc.gridx = 0
+        gbc.gridy = 0
+        contentPanel.add(progress1, gbc)
+        gbc.gridx = 0
+        gbc.gridy = 1
+        contentPanel.add(statsInfo, gbc)
+        tablePanel.add(clearButton, BorderLayout.SOUTH)
+        tablePanel.add(logOutButton, BorderLayout.NORTH)
+
         splitter.isShowDividerControls = true
         splitter.firstComponent = contentPanel
         splitter.secondComponent = tablePanel
@@ -103,7 +167,10 @@ class GameStatisticsDialog(project: Project?) : DialogWrapper(project, true) {
             object : GameEventListener {
                 override fun progressChanged(event: GameEvent) {
                     progress.value = event.progress
-                    levelInfo.text = "Level: ${event.level}"
+                    statsInfo.text = "Level: ${event.level}"
+                    if (stats.getLevel() != level && statsInfo.text != "Level: 0") {
+                        update()
+                    }
                     table.setModelAndUpdateColumns(
                         ListTableModel(COLUMNS, stats.getRewardInfo(), 0)
                     )

@@ -1,13 +1,15 @@
 package com.intellij.plugin.gamification.toolWindow
 
-import java.awt.BorderLayout
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
+import java.awt.event.ActionListener
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JPasswordField
 import javax.swing.JTextField
 
-class SignInPanel {
+class SignInPanel(listener: ActionListener?) {
 
     val signPanel = JPanel()
 
@@ -17,23 +19,36 @@ class SignInPanel {
 
     init {
 
+        val layout = GridBagLayout()
+        val gbc = GridBagConstraints()
+        signPanel.layout = layout
+
+        gbc.fill = GridBagConstraints.HORIZONTAL
         val lbLogin = JLabel("Login: ")
-        signPanel.add(lbLogin, BorderLayout.NORTH)
+        gbc.gridx = 0
+        gbc.gridy = 0
+        signPanel.add(lbLogin, gbc)
 
         val tfUsername = JTextField(fieldSize)
-        signPanel.add(tfUsername, BorderLayout.NORTH)
+        gbc.gridx = 1
+        gbc.gridy = 0
+        signPanel.add(tfUsername, gbc)
+
         val lbPassword = JLabel("Password: ")
-        signPanel.add(lbPassword, BorderLayout.SOUTH)
+        gbc.gridx = 0
+        gbc.gridy = 1
+        signPanel.add(lbPassword, gbc)
 
         val pfPassword = JPasswordField(fieldSize)
-        signPanel.add(pfPassword, BorderLayout.SOUTH)
+        gbc.gridx = 1
+        gbc.gridy = 1
+        signPanel.add(pfPassword, gbc)
 
-        val btnLogin = JButton("Login")
+        val btnLogin = JButton("Log In")
 
-        btnLogin.addActionListener {
-            println("login" + tfUsername.text + " password " + pfPassword.password)
-        }
-
+        btnLogin.addActionListener(listener)
+        gbc.gridx = 1
+        gbc.gridy = 2
         signPanel.add(btnLogin)
     }
 }
