@@ -1,3 +1,3 @@
-rootProject.name = "gamify"
+rootProject.name = "Gamify"
 
 include("server")

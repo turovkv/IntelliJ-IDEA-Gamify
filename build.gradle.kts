@@ -27,7 +27,6 @@ version = properties("pluginVersion")
 allprojects {
     repositories {
         mavenCentral()
-        jcenter()
     }
 }
 

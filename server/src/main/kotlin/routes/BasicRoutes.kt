@@ -41,7 +41,7 @@ private fun Route.basicRouting(repository: GamifyRepository) {
             }
         }
 
-        //addEmptyUser
+        //createUser
         post("") {
             val credential = call.receive<UserPasswordCredential>()
 
