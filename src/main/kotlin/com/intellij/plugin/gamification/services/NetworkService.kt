@@ -43,14 +43,14 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
         private const val serverUrl = "http://0.0.0.0:8080"
     }
 
-    class ClientState {
-        var isSignedIn: Boolean = false
-        var userId: Int = -1
-        var login: String = "No login"
-        var userInfo: UserInfo = UserInfo()
-    }
+    data class ClientState(
+        var isSignedIn: Boolean,
+        var userId: Int,
+        var login: String,
+        var userInfo: UserInfo,
+    )
 
-    private var state = ClientState()
+    private var state = ClientState(false, -1, "No login", UserInfo())
     override fun getState() = state
     override fun loadState(state: ClientState) {
         this.state = state
