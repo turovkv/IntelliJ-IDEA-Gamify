@@ -10,14 +10,18 @@ interface GamifyRepository {
     fun getAllUserInfos(): List<UserInfo>
 
     fun createUser(credential: UserPasswordCredential): Int
-    fun authenticate(credential: UserPasswordCredential): UserIdPrincipal?
-    fun checkAccess(id: Int, name: String?)
+    fun authenticate(credential: UserPasswordCredential): Authorized?
 
-    // authorised
-    fun updateUser(id: Int, userInfo: UserInfo)
 
-    fun addNotification(id: Int, notification: Notification)
-    fun subscribe(idFrom: Int, idTo: Int)
-    fun unsubscribe(idFrom: Int, idTo: Int)
-    fun getNotifications(id: Int): List<Notification>
+    interface Authorized : GamifyRepository {
+        val userPrincipal: UserIdPrincipal
+
+        fun updateUser(userInfo: UserInfo)
+
+        // TODO: use user if from `userPrincipal`
+        fun addNotification(id: Int, notification: Notification)
+        fun subscribe(idFrom: Int, idTo: Int)
+        fun unsubscribe(idFrom: Int, idTo: Int)
+        fun getNotifications(id: Int): List<Notification>
+    }
 }

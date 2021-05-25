@@ -1,16 +1,14 @@
 package com.intellij.gamify.server.routes
 
 import com.intellij.gamify.server.entities.Notification
-import com.intellij.gamify.server.repository.GamifyRepository
 import com.intellij.gamify.server.repository.RepositoryException
 import io.ktor.application.*
-import io.ktor.auth.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
-private fun Route.notificationRouting(repository: GamifyRepository) {
+private fun Route.notificationRouting() {
     route("/users") {
         get("notifications/{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
@@ -24,7 +22,6 @@ private fun Route.notificationRouting(repository: GamifyRepository) {
             }
 
             try {
-                repository.checkAccess(id, call.principal<UserIdPrincipal>()?.name)
                 call.respond(repository.getNotifications(id))
             } catch (e: RepositoryException) {
                 call.respond(
@@ -47,7 +44,6 @@ private fun Route.notificationRouting(repository: GamifyRepository) {
             val notification = call.receive<Notification>()
 
             try {
-                repository.checkAccess(idFrom, call.principal<UserIdPrincipal>()?.name)
                 repository.addNotification(idFrom, notification)
             } catch (e: RepositoryException) {
                 call.respond(
@@ -91,7 +87,6 @@ private fun Route.notificationRouting(repository: GamifyRepository) {
 
             val idTo = call.receive<Int>()
             try {
-                repository.checkAccess(idFrom, call.principal<UserIdPrincipal>()?.name)
                 repository.subscribe(idFrom, idTo)
                 call.respond(HttpStatusCode.OK)
             } catch (e: RepositoryException) {
@@ -114,7 +109,6 @@ private fun Route.notificationRouting(repository: GamifyRepository) {
 
             val idTo = call.receive<Int>()
             try {
-                repository.checkAccess(idFrom, call.principal<UserIdPrincipal>()?.name)
                 repository.unsubscribe(idFrom, idTo)
                 call.respond(HttpStatusCode.OK)
             } catch (e: RepositoryException) {
@@ -127,10 +121,10 @@ private fun Route.notificationRouting(repository: GamifyRepository) {
     }
 }
 
-fun Application.registerNotificationRoutes(repository: GamifyRepository) {
+fun Application.registerNotificationRoutes() {
     routing {
-        authenticate("auth-basic-hashed") {
-            notificationRouting(repository)
+        authenticateByHash {
+            notificationRouting()
         }
     }
 }
