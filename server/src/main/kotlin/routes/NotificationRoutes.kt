@@ -1,7 +1,6 @@
 package com.intellij.gamify.server.routes
 
 import com.intellij.gamify.server.entities.Notification
-import com.intellij.gamify.server.repository.GamifyRepository
 import com.intellij.gamify.server.repository.RepositoryException
 import io.ktor.application.*
 import io.ktor.http.*
@@ -9,7 +8,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 
-private fun Route.notificationRouting(repository: GamifyRepository.Authorized) {
+private fun Route.notificationRouting() {
     route("/users") {
         get("notifications/{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
@@ -124,8 +123,8 @@ private fun Route.notificationRouting(repository: GamifyRepository.Authorized) {
 
 fun Application.registerNotificationRoutes() {
     routing {
-        authenticateByHash { repo ->
-            notificationRouting(repo)
+        authenticateByHash {
+            notificationRouting()
         }
     }
 }

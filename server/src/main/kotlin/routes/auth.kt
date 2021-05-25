@@ -5,6 +5,7 @@ import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.routing.*
 import io.ktor.util.*
+import io.ktor.util.pipeline.*
 
 private val AUTH_REPO = AttributeKey<GamifyRepository.Authorized>("ACCESS_REPO")
 
@@ -22,9 +23,13 @@ fun Application.installHashedAuthentication(repository: GamifyRepository) {
     }
 }
 
-fun Route.authenticateByHash(block: Route.(GamifyRepository.Authorized) -> Unit) {
+fun Route.authenticateByHash(block: Route.() -> Unit) {
     authenticate("auth-basic-hashed") {
         println("HELLO :(")
-        block(this, attributes[AUTH_REPO])
+        block(this)
     }
 }
+
+val PipelineContext<*, ApplicationCall>.repository: GamifyRepository.Authorized
+    get() = this.context.attributes[AUTH_REPO]
+

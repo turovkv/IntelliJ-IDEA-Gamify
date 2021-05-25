@@ -60,7 +60,7 @@ private fun Route.basicRouting(repository: GamifyRepository) {
     }
 }
 
-private fun Route.basicRoutingWithAuth(repository: GamifyRepository.Authorized) {
+private fun Route.basicRoutingWithAuth() {
     route("/users") {
 
         //updateUser
@@ -93,8 +93,8 @@ private fun Route.basicRoutingWithAuth(repository: GamifyRepository.Authorized) 
 fun Application.registerBasicRoutes(repository: GamifyRepository) {
     routing {
         basicRouting(repository)
-        authenticateByHash { repo ->
-            basicRoutingWithAuth(repo)
+        authenticateByHash {
+            basicRoutingWithAuth()
         }
     }
 }
