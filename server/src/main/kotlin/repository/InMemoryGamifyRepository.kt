@@ -66,24 +66,6 @@ class InMemoryGamifyRepository : GamifyRepository {
         return nameToId[name] ?: throw RepositoryException("No user with name $name")
     }
 
-    override fun authenticate(credential: UserPasswordCredential): UserIdPrincipal? {
-        val userPasswordHash = usersHashedPasswords[credential.name]
-        if (userPasswordHash != null && MessageDigest.isEqual(digestFunction(credential.password), userPasswordHash)) {
-            return UserIdPrincipal(credential.name)
-        }
-
-        return null
-    }
-
-    override fun checkAccess(id: Int, name: String?) {
-        if (name == null) {
-            throw RepositoryException("Try access with no name")
-        }
-        if (id != getIdByName(name)) {
-            throw RepositoryException("Illegal access")
-        }
-    }
-
     override fun createUser(credential: UserPasswordCredential): Int = lockOnAdd.withLock {
         if (nameToId.contains(credential.name) || usersHashedPasswords.contains(credential.name)) {
             throw RepositoryException("User with name ${credential.name} already exists")
@@ -91,8 +73,8 @@ class InMemoryGamifyRepository : GamifyRepository {
         usersHashedPasswords[credential.name] = digestFunction(credential.password)
 
         val user = User(
-            id = nextUserId,
-            name = credential.name
+                id = nextUserId,
+                name = credential.name
         )
         users[user.id] = user
         nameToId[user.name] = user.id
@@ -102,59 +84,71 @@ class InMemoryGamifyRepository : GamifyRepository {
         return user.id
     }
 
-    override fun updateUser(id: Int, userInfo: UserInfo): Unit = withUserWriteLock(id) {
-        val user = getUserById(id)
-        user.userInfo = userInfo
-    }
-
-    override fun addNotification(id: Int, notification: Notification): Unit = withUserWriteLock(id) {
-        val user = getUserById(id)
-        val notificationWithTime = NotificationWithTime(
-            notification,
-            Timestamp(System.currentTimeMillis())
-        )
-
-        user.notifications.addLast(notificationWithTime)
-    }
-
-    override fun subscribe(idFrom: Int, idTo: Int): Unit = withUserWriteLock(idFrom) {
-        val userFrom = getUserById(idFrom)
-        if (!userFrom.subscribing.add(idTo)) {
-            throw RepositoryException("UserId $idFrom already subscribed to $idTo")
+    override fun authenticate(credential: UserPasswordCredential): GamifyRepository.Authorized? {
+        val userPasswordHash = usersHashedPasswords[credential.name]
+        if (userPasswordHash == null || !MessageDigest.isEqual(digestFunction(credential.password), userPasswordHash)) {
+            return null
         }
-    }
 
-    override fun unsubscribe(idFrom: Int, idTo: Int): Unit = withUserWriteLock(idFrom) {
-        val userFrom = getUserById(idFrom)
-        if (!userFrom.subscribing.remove(idTo)) {
-            throw RepositoryException("UserId $idFrom not subscribed to $idTo")
-        }
-    }
+        return object : GamifyRepository.Authorized, GamifyRepository by this {
+            override val userPrincipal: UserIdPrincipal = UserIdPrincipal(credential.name)
 
-    override fun getNotifications(id: Int): List<Notification> = withUserReadLock(id) {
-        val user = getUserById(id)
-        val list = ArrayList<NotificationWithTime>()
-        for (celebId in user.subscribing) {
-            withUserReadLock(celebId) {
-                val celeb = getUserById(celebId)
-                val it = celeb.notifications.descendingIterator()
-                while (it.hasNext()) {
-                    val nWithTime = it.next()
-                    if (nWithTime.serverTime.after(user.lastWatched)) {
-                        list.add(nWithTime)
-                    } else {
-                        break
-                    }
+            // TODO: avoid using numeric id
+            override fun updateUser(userInfo: UserInfo): Unit = withUserWriteLock(getIdByName(userPrincipal.name)) {
+                val user = getUserById(getIdByName(userPrincipal.name))
+                user.userInfo = userInfo
+            }
+
+            override fun addNotification(id: Int, notification: Notification): Unit = withUserWriteLock(id) {
+                val user = getUserById(id)
+                val notificationWithTime = NotificationWithTime(
+                    notification,
+                    Timestamp(System.currentTimeMillis())
+                )
+
+                user.notifications.addLast(notificationWithTime)
+            }
+
+            override fun subscribe(idFrom: Int, idTo: Int): Unit = withUserWriteLock(idFrom) {
+                val userFrom = getUserById(idFrom)
+                if (!userFrom.subscribing.add(idTo)) {
+                    throw RepositoryException("UserId $idFrom already subscribed to $idTo")
                 }
-            } // exception?
+            }
+
+            override fun unsubscribe(idFrom: Int, idTo: Int): Unit = withUserWriteLock(idFrom) {
+                val userFrom = getUserById(idFrom)
+                if (!userFrom.subscribing.remove(idTo)) {
+                    throw RepositoryException("UserId $idFrom not subscribed to $idTo")
+                }
+            }
+
+            override fun getNotifications(id: Int): List<Notification> = withUserReadLock(id) {
+                val user = getUserById(id)
+                val list = ArrayList<NotificationWithTime>()
+                for (celebId in user.subscribing) {
+                    withUserReadLock(celebId) {
+                        val celeb = getUserById(celebId)
+                        val it = celeb.notifications.descendingIterator()
+                        while (it.hasNext()) {
+                            val nWithTime = it.next()
+                            if (nWithTime.serverTime.after(user.lastWatched)) {
+                                list.add(nWithTime)
+                            } else {
+                                break
+                            }
+                        }
+                    } // exception?
+                }
+
+                user.lastWatched = Timestamp(System.currentTimeMillis())
+
+                return@withUserReadLock list
+                    .asSequence()
+                    .sortedBy { it.serverTime }
+                    .map { it.notification }
+                    .toList()
+            }
         }
-
-        user.lastWatched = Timestamp(System.currentTimeMillis())
-
-        return@withUserReadLock list
-            .asSequence()
-            .sortedBy { it.serverTime }
-            .map { it.notification }
-            .toList()
     }
 }

@@ -60,7 +60,7 @@ private fun Route.basicRouting(repository: GamifyRepository) {
     }
 }
 
-private fun Route.basicRoutingWithAuth(repository: GamifyRepository) {
+private fun Route.basicRoutingWithAuth(repository: GamifyRepository.Authorized) {
     route("/users") {
 
         //updateUser
@@ -77,8 +77,7 @@ private fun Route.basicRoutingWithAuth(repository: GamifyRepository) {
 
             try {
                 val userInfo = call.receive<UserInfo>()
-                repository.checkAccess(userId, call.principal<UserIdPrincipal>()?.name)
-                repository.updateUser(userId, userInfo)
+                repository.updateUser(userInfo)
                 call.respond(HttpStatusCode.OK)
             } catch (e: RepositoryException) {
                 call.respond(
@@ -94,8 +93,8 @@ private fun Route.basicRoutingWithAuth(repository: GamifyRepository) {
 fun Application.registerBasicRoutes(repository: GamifyRepository) {
     routing {
         basicRouting(repository)
-        authenticate("auth-basic-hashed") {
-            basicRoutingWithAuth(repository)
+        authenticateByHash { repo ->
+            basicRoutingWithAuth(repo)
         }
     }
 }

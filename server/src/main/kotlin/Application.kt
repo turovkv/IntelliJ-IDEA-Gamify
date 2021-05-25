@@ -3,6 +3,7 @@ package com.intellij.gamify.server
 import com.intellij.gamify.server.entities.UserInfo
 import com.intellij.gamify.server.repository.GamifyRepository
 import com.intellij.gamify.server.repository.InMemoryGamifyRepository
+import com.intellij.gamify.server.routes.installHashedAuthentication
 import com.intellij.gamify.server.routes.registerBasicRoutes
 import com.intellij.gamify.server.routes.registerNotificationRoutes
 import io.ktor.application.*
@@ -14,20 +15,20 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.util.*
 
+private const val ADD_PREDEFINED_USERS = true
+
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("Unused")
 fun Application.module() {
-    val repository: GamifyRepository = InMemoryGamifyRepository()
-    repository.createUser(UserPasswordCredential("kirill", "kirill"))
-    repository.createUser(UserPasswordCredential("katya", "katya"))
-    repository.createUser(UserPasswordCredential("vitaliy", "vitaliy"))
-    repository.createUser(UserPasswordCredential("alexey", "alexey"))
-    repository.updateUser(0, UserInfo("kirill", 1))
-    repository.updateUser(1, UserInfo("katya", 2))
-    repository.updateUser(2, UserInfo("vitaliy", 3))
-    repository.updateUser(3, UserInfo("alexey", 4))
-
+    val repository: GamifyRepository = InMemoryGamifyRepository().apply {
+        if (ADD_PREDEFINED_USERS) {
+            addPredefinedUser("kirill", 1)
+            addPredefinedUser("katya", 2)
+            addPredefinedUser("vitaliy", 3)
+            addPredefinedUser("alexey", 4)
+        }
+    }
 
     install(CallLogging)
     install(DefaultHeaders)
@@ -42,13 +43,8 @@ fun Application.module() {
             setPrettyPrinting()
         }
     }
-    install(Authentication) {
-        basic("auth-basic-hashed") {
-            validate { credentials ->
-                repository.authenticate(credentials)
-            }
-        }
-    }
+
+    installHashedAuthentication(repository)
 
     routing {
         get("/") {
@@ -56,5 +52,12 @@ fun Application.module() {
         }
     }
     registerBasicRoutes(repository)
-    registerNotificationRoutes(repository)
+    registerNotificationRoutes()
+}
+
+fun GamifyRepository.addPredefinedUser(name: String, level: Int): GamifyRepository {
+    val credential = UserPasswordCredential(name, name)
+    createUser(credential)
+    authenticate(credential)!!.updateUser(UserInfo(name.capitalize(), level))
+    return this
 }
