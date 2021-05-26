@@ -12,7 +12,6 @@ interface GamifyRepository {
     fun createUser(credential: UserPasswordCredential): Int
     fun authenticate(credential: UserPasswordCredential): Authorized?
 
-
     interface Authorized : GamifyRepository {
         val userPrincipal: UserIdPrincipal
 
