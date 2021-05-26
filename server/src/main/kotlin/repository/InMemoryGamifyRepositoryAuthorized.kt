@@ -13,15 +13,16 @@ class InMemoryGamifyRepositoryAuthorized(
 ) : GamifyRepository.Authorized, InMemoryGamifyRepository(storage) {
     
     override val userPrincipal: UserIdPrincipal = UserIdPrincipal(credential.name)
-    
-    // TODO: avoid using numeric id
-    override fun updateUser(userInfo: UserInfo): Unit = withUserWriteLock(getIdByName(userPrincipal.name)) {
-        val user = getUserById(getIdByName(userPrincipal.name))
+    private val myName: String = userPrincipal.name
+
+    // TODO: avoid using numeric name
+    override fun updateUser(userInfo: UserInfo): Unit = withUserWriteLock(myName) {
+        val user = getUserByName(myName)
         user.userInfo = userInfo
     }
 
-    override fun addNotification(id: Int, notification: Notification): Unit = withUserWriteLock(id) {
-        val user = getUserById(id)
+    override fun addNotification(notification: Notification): Unit = withUserWriteLock(myName) {
+        val user = getUserByName(myName)
         val notificationWithTime = NotificationWithTime(
             notification,
             Timestamp(System.currentTimeMillis())
@@ -30,26 +31,26 @@ class InMemoryGamifyRepositoryAuthorized(
         user.notifications.addLast(notificationWithTime)
     }
 
-    override fun subscribe(idFrom: Int, idTo: Int): Unit = withUserWriteLock(idFrom) {
-        val userFrom = getUserById(idFrom)
-        if (!userFrom.subscribing.add(idTo)) {
-            throw RepositoryException("UserId $idFrom already subscribed to $idTo")
+    override fun subscribe(nameTo: String): Unit = withUserWriteLock(myName) {
+        val userFrom = getUserByName(myName)
+        if (!userFrom.subscribing.add(nameTo)) {
+            throw RepositoryException("UserId $myName already subscribed to $nameTo")
         }
     }
 
-    override fun unsubscribe(idFrom: Int, idTo: Int): Unit = withUserWriteLock(idFrom) {
-        val userFrom = getUserById(idFrom)
-        if (!userFrom.subscribing.remove(idTo)) {
-            throw RepositoryException("UserId $idFrom not subscribed to $idTo")
+    override fun unsubscribe(nameTo: String): Unit = withUserWriteLock(myName) {
+        val userFrom = getUserByName(myName)
+        if (!userFrom.subscribing.remove(nameTo)) {
+            throw RepositoryException("UserId $myName not subscribed to $nameTo")
         }
     }
 
-    override fun getNotifications(id: Int): List<Notification> = withUserReadLock(id) {
-        val user = getUserById(id)
+    override fun getNotifications(): List<Notification> = withUserReadLock(userPrincipal.name) {
+        val user = getUserByName(userPrincipal.name)
         val list = ArrayList<NotificationWithTime>()
         for (celebId in user.subscribing) {
             withUserReadLock(celebId) {
-                val celeb = getUserById(celebId)
+                val celeb = getUserByName(celebId)
                 val it = celeb.notifications.descendingIterator()
                 while (it.hasNext()) {
                     val nWithTime = it.next()

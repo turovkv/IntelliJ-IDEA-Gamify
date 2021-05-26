@@ -47,8 +47,12 @@ fun Application.module() {
     installHashedAuthentication(repository)
 
     routing {
-        get("/") {
+        get("/{name}") {
+            println("Hello-------------------")
+            val name = call.parameters["name"]
+            println(name)
             call.respondText("Hello World!")
+            return@get
         }
     }
     registerBasicRoutes(repository)

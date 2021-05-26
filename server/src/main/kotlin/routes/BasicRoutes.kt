@@ -18,24 +18,15 @@ private fun Route.basicRouting(repository: GamifyRepository) {
             call.respond(repository.getAllUserInfos())
         }
 
-        //getUserInfoById
-        get("{id}") {
-            val id = call.parameters["id"]?.toIntOrNull()
-
-            if (id == null) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    "id parameter has to be a number"
-                )
-                return@get
-            }
-
+        //getUserInfoByName
+        get("{name}") {
             try {
-                val user = repository.getUserInfoById(id)
+                val name = call.parameters["name"]!!
+                val user = repository.getUserInfoByName(name)
                 call.respond(user)
             } catch (e: RepositoryException) {
                 call.respond(
-                    HttpStatusCode.NotFound,
+                    HttpStatusCode.BadRequest,
                     e.localizedMessage
                 )
             }
@@ -46,42 +37,29 @@ private fun Route.basicRouting(repository: GamifyRepository) {
             val credential = call.receive<UserPasswordCredential>()
 
             try {
-                val id: Int = repository.createUser(credential)
-                call.respond(id)
+                repository.createUser(credential)
+                call.respond(HttpStatusCode.OK)
             } catch (e: RepositoryException) {
                 call.respond(
                     HttpStatusCode.BadRequest,
                     e.localizedMessage
                 )
-                return@post
             }
         }
-
     }
 }
 
 private fun Route.basicRoutingWithAuth() {
     route("/users") {
-
         //updateUser
-        put("{id}") {
-            val userId = call.parameters["id"]?.toIntOrNull()
-
-            if (userId == null) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    "id parameter has to be a number!"
-                )
-                return@put
-            }
-
+        put("update") {
             try {
                 val userInfo = call.receive<UserInfo>()
                 repository.updateUser(userInfo)
                 call.respond(HttpStatusCode.OK)
             } catch (e: RepositoryException) {
                 call.respond(
-                    HttpStatusCode.NotFound,
+                    HttpStatusCode.BadRequest,
                     e.localizedMessage
                 )
             }

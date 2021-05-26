@@ -6,13 +6,12 @@ import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.CopyOnWriteArraySet
 
 data class User(
-    val id: Int,
     val name: String,
     var userInfo: UserInfo = UserInfo(),
 
     var lastWatched: Timestamp = Timestamp(System.currentTimeMillis()),
     val notifications: Deque<NotificationWithTime> = ConcurrentLinkedDeque(),
-    val subscribing: MutableSet<Int> = CopyOnWriteArraySet(),
+    val subscribing: MutableSet<String> = CopyOnWriteArraySet(),
 )
 
 data class UserInfo(

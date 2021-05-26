@@ -10,19 +10,21 @@ import io.ktor.routing.*
 
 private fun Route.notificationRouting() {
     route("/users") {
-        get("notifications/{id}") {
-            val id = call.parameters["id"]?.toIntOrNull()
-
-            if (id == null) {
+        get("notifications") {
+            try {
+                call.respond(repository.getNotifications())
+            } catch (e: RepositoryException) {
                 call.respond(
                     HttpStatusCode.BadRequest,
-                    "id parameter has to be a number"
+                    e.localizedMessage
                 )
-                return@get
             }
+        }
 
+        post("notifications") {
             try {
-                call.respond(repository.getNotifications(id))
+                val notification = call.receive<Notification>() // exception
+                repository.addNotification(notification)
             } catch (e: RepositoryException) {
                 call.respond(
                     HttpStatusCode.NotFound,
@@ -31,41 +33,19 @@ private fun Route.notificationRouting() {
             }
         }
 
-        post("notifications/{id}") {
-            val idFrom = call.parameters["id"]?.toIntOrNull()
-            if (idFrom == null) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    "id parameter has to be a number!"
-                )
-                return@post
-            }
-
-            val notification = call.receive<Notification>()
-
-            try {
-                repository.addNotification(idFrom, notification)
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.NotFound,
-                    e.localizedMessage
-                )
-            }
-        }
-
-//        get("subscribing/{id}") {
-//            val id = call.parameters["id"]?.toIntOrNull()
+//        get("subscribing/{name}") {
+//            val name = call.parameters["name"]?.toIntOrNull()
 //
-//            if (id == null) {
+//            if (name == null) {
 //                call.respond(
 //                    HttpStatusCode.BadRequest,
-//                    "id parameter has to be a number"
+//                    "name parameter has to be a number"
 //                )
 //                return@get
 //            }
 //
 //            try {
-//                val user = repository.getUserById(id)
+//                val user = repository.getUserById(name)
 //                call.respond(user.subscribing.toList())
 //            } catch (e: RepositoryException) {
 //                call.respond(
@@ -75,19 +55,10 @@ private fun Route.notificationRouting() {
 //            }
 //        }
 
-        post("subscribing/{id}") {
-            val idFrom = call.parameters["id"]?.toIntOrNull()
-            if (idFrom == null) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    "id parameter has to be a number!"
-                )
-                return@post
-            }
-
-            val idTo = call.receive<Int>()
+        post("subscribing/{nameTo}") {
             try {
-                repository.subscribe(idFrom, idTo)
+                val nameTo = call.parameters["nameTo"]!!
+                repository.subscribe(nameTo)
                 call.respond(HttpStatusCode.OK)
             } catch (e: RepositoryException) {
                 call.respond(
@@ -97,19 +68,10 @@ private fun Route.notificationRouting() {
             }
         }
 
-        delete("subscribing/{id}") {
-            val idFrom = call.parameters["id"]?.toIntOrNull()
-            if (idFrom == null) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    "id parameter has to be a number!"
-                )
-                return@delete
-            }
-
-            val idTo = call.receive<Int>()
+        delete("subscribing/{nameTo}") {
             try {
-                repository.unsubscribe(idFrom, idTo)
+                val nameTo = call.parameters["nameTo"]!!
+                repository.unsubscribe(nameTo)
                 call.respond(HttpStatusCode.OK)
             } catch (e: RepositoryException) {
                 call.respond(
