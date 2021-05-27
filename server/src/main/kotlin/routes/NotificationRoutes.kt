@@ -1,83 +1,51 @@
 package com.intellij.gamify.server.routes
 
 import com.intellij.gamify.server.entities.Notification
-import com.intellij.gamify.server.repository.RepositoryException
-import io.ktor.application.*
-import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
+import io.ktor.response.respond
+import io.ktor.routing.Route
+import io.ktor.routing.delete
+import io.ktor.routing.get
+import io.ktor.routing.post
+import io.ktor.routing.route
+import io.ktor.routing.routing
 
 private fun Route.notificationRouting() {
     route("/users") {
+        //get notifications
         get("notifications") {
-            try {
-                call.respond(repository.getNotifications())
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    e.localizedMessage
-                )
+            handleResponse {
+                return@handleResponse call.respond(repository.getNotifications())
             }
         }
 
+        //add my notification
         post("notifications") {
-            try {
+            handleResponse {
                 val notification = call.receive<Notification>() // exception
                 repository.addNotification(notification)
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.NotFound,
-                    e.localizedMessage
-                )
+                return@handleResponse HttpStatusCode.OK
             }
         }
 
-//        get("subscribing/{name}") {
-//            val name = call.parameters["name"]?.toIntOrNull()
-//
-//            if (name == null) {
-//                call.respond(
-//                    HttpStatusCode.BadRequest,
-//                    "name parameter has to be a number"
-//                )
-//                return@get
-//            }
-//
-//            try {
-//                val user = repository.getUserById(name)
-//                call.respond(user.subscribing.toList())
-//            } catch (e: RepositoryException) {
-//                call.respond(
-//                    HttpStatusCode.NotFound,
-//                    e.localizedMessage
-//                )
-//            }
-//        }
-
+        //subscribe
         post("subscribing/{nameTo}") {
-            try {
+            handleResponse {
                 val nameTo = call.parameters["nameTo"]!!
                 repository.subscribe(nameTo)
-                call.respond(HttpStatusCode.OK)
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    e.localizedMessage
-                )
+                return@handleResponse HttpStatusCode.OK
             }
         }
 
-        delete("subscribing/{nameTo}") {
-            try {
-                val nameTo = call.parameters["nameTo"]!!
-                repository.unsubscribe(nameTo)
-                call.respond(HttpStatusCode.OK)
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    e.localizedMessage
-                )
+        //unsubscribe
+        delete("subscribing/{nameFrom}") {
+            handleResponse {
+                val nameFrom = call.parameters["nameFrom"]!!
+                repository.unsubscribe(nameFrom)
+                return@handleResponse HttpStatusCode.OK
             }
         }
     }

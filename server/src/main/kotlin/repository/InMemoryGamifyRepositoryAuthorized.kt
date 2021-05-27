@@ -15,7 +15,6 @@ class InMemoryGamifyRepositoryAuthorized(
     override val userPrincipal: UserIdPrincipal = UserIdPrincipal(credential.name)
     private val myName: String = userPrincipal.name
 
-    // TODO: avoid using numeric name
     override fun updateUser(userInfo: UserInfo): Unit = withUserWriteLock(myName) {
         val user = getUserByName(myName)
         user.userInfo = userInfo
@@ -38,14 +37,14 @@ class InMemoryGamifyRepositoryAuthorized(
         }
     }
 
-    override fun unsubscribe(nameTo: String): Unit = withUserWriteLock(myName) {
+    override fun unsubscribe(nameFrom: String): Unit = withUserWriteLock(myName) {
         val userFrom = getUserByName(myName)
-        if (!userFrom.subscribing.remove(nameTo)) {
-            throw RepositoryException("UserId $myName not subscribed to $nameTo")
+        if (!userFrom.subscribing.remove(nameFrom)) {
+            throw RepositoryException("UserId $myName not subscribed to $nameFrom")
         }
     }
 
-    override fun getNotifications(): List<Notification> = withUserReadLock(userPrincipal.name) {
+    override fun getNotifications(): List<Notification> = withUserReadLock(myName) {
         val user = getUserByName(userPrincipal.name)
         val list = ArrayList<NotificationWithTime>()
         for (celebId in user.subscribing) {

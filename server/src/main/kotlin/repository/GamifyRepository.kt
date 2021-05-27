@@ -20,7 +20,7 @@ interface GamifyRepository {
 
         fun addNotification(notification: Notification)
         fun subscribe(nameTo: String)
-        fun unsubscribe(nameTo: String)
+        fun unsubscribe(nameFrom: String)
         fun getNotifications(): List<Notification>
     }
 }

@@ -2,48 +2,41 @@ package com.intellij.gamify.server.routes
 
 import com.intellij.gamify.server.entities.UserInfo
 import com.intellij.gamify.server.repository.GamifyRepository
-import com.intellij.gamify.server.repository.RepositoryException
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.auth.UserPasswordCredential
+import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
+import io.ktor.routing.Route
+import io.ktor.routing.get
+import io.ktor.routing.post
+import io.ktor.routing.put
+import io.ktor.routing.route
+import io.ktor.routing.routing
 
 private fun Route.basicRouting(repository: GamifyRepository) {
     route("/users") {
-
         //getAllUserInfos
         get("") {
-            call.respond(repository.getAllUserInfos())
+            handleResponse {
+                return@handleResponse repository.getAllUserInfos()
+            }
         }
 
         //getUserInfoByName
         get("{name}") {
-            try {
-                val name = call.parameters["name"]!!
-                val user = repository.getUserInfoByName(name)
-                call.respond(user)
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    e.localizedMessage
-                )
+            handleResponse {
+                val name = call.parameters["name"]!! // exception?
+                return@handleResponse repository.getUserInfoByName(name)
             }
         }
 
         //createUser
         post("") {
-            val credential = call.receive<UserPasswordCredential>()
-
-            try {
+            handleResponse {
+                val credential = call.receive<UserPasswordCredential>() // exception?
                 repository.createUser(credential)
-                call.respond(HttpStatusCode.OK)
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    e.localizedMessage
-                )
+                return@handleResponse HttpStatusCode.OK
             }
         }
     }
@@ -53,15 +46,10 @@ private fun Route.basicRoutingWithAuth() {
     route("/users") {
         //updateUser
         put("update") {
-            try {
-                val userInfo = call.receive<UserInfo>()
+            handleResponse {
+                val userInfo = call.receive<UserInfo>() // exception
                 repository.updateUser(userInfo)
-                call.respond(HttpStatusCode.OK)
-            } catch (e: RepositoryException) {
-                call.respond(
-                    HttpStatusCode.BadRequest,
-                    e.localizedMessage
-                )
+                return@handleResponse HttpStatusCode.OK
             }
         }
     }

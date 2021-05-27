@@ -25,7 +25,6 @@ fun Application.installHashedAuthentication(repository: GamifyRepository) {
 
 fun Route.authenticateByHash(block: Route.() -> Unit) {
     authenticate("auth-basic-hashed") {
-        println("HELLO :(")
         block(this)
     }
 }
