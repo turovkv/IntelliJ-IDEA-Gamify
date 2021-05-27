@@ -25,7 +25,7 @@ private fun Route.notificationRouting() {
         //add my notification
         post("notifications") {
             handleResponse {
-                val notification = call.receive<Notification>() // exception
+                val notification = call.receive<Notification>()
                 repository.addNotification(notification)
                 return@handleResponse HttpStatusCode.OK
             }

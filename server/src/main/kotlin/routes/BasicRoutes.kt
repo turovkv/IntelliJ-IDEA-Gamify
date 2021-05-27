@@ -19,22 +19,22 @@ private fun Route.basicRouting(repository: GamifyRepository) {
         //getAllUserInfos
         get("") {
             handleResponse {
-                return@handleResponse repository.getAllUserInfos()
+                return@handleResponse repository.getAllUsers()
             }
         }
 
         //getUserInfoByName
         get("{name}") {
             handleResponse {
-                val name = call.parameters["name"]!! // exception?
-                return@handleResponse repository.getUserInfoByName(name)
+                val name = call.parameters["name"]!!
+                return@handleResponse repository.getUserByName(name)
             }
         }
 
         //createUser
         post("") {
             handleResponse {
-                val credential = call.receive<UserPasswordCredential>() // exception?
+                val credential = call.receive<UserPasswordCredential>()
                 repository.createUser(credential)
                 return@handleResponse HttpStatusCode.OK
             }
@@ -47,8 +47,8 @@ private fun Route.basicRoutingWithAuth() {
         //updateUser
         put("update") {
             handleResponse {
-                val userInfo = call.receive<UserInfo>() // exception
-                repository.updateUser(userInfo)
+                val userInfo = call.receive<UserInfo>()
+                repository.updateUserInfo(userInfo)
                 return@handleResponse HttpStatusCode.OK
             }
         }

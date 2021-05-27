@@ -6,14 +6,21 @@ import com.intellij.gamify.server.repository.InMemoryGamifyRepository
 import com.intellij.gamify.server.routes.installHashedAuthentication
 import com.intellij.gamify.server.routes.registerBasicRoutes
 import com.intellij.gamify.server.routes.registerNotificationRoutes
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.features.*
-import io.ktor.gson.*
-import io.ktor.http.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.util.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.auth.UserPasswordCredential
+import io.ktor.features.CallLogging
+import io.ktor.features.ContentNegotiation
+import io.ktor.features.DefaultHeaders
+import io.ktor.features.StatusPages
+import io.ktor.gson.gson
+import io.ktor.http.HttpStatusCode
+import io.ktor.response.respond
+import io.ktor.response.respondText
+import io.ktor.routing.get
+import io.ktor.routing.routing
+import io.ktor.util.error
 
 private const val ADD_PREDEFINED_USERS = true
 
@@ -58,6 +65,6 @@ fun Application.module() {
 fun GamifyRepository.addPredefinedUser(name: String, level: Int): GamifyRepository {
     val credential = UserPasswordCredential(name, name)
     createUser(credential)
-    authenticate(credential)!!.updateUser(UserInfo(name.capitalize(), level))
+    authenticate(credential)!!.updateUserInfo(UserInfo(name.capitalize(), level))
     return this
 }
