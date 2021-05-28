@@ -19,15 +19,18 @@ plugins {
     // ktlint linter - read more: https://github.com/JLLeitschuh/ktlint-gradle
     id("org.jlleitschuh.gradle.ktlint") version "10.0.0"
 }
+// Configure project's dependencies
 
 group = properties("pluginGroup")
 version = properties("pluginVersion")
 
-// Configure project's dependencies
-repositories {
-    mavenCentral()
-    jcenter()
+allprojects {
+    repositories {
+        mavenCentral()
+        jcenter() // for detekt
+    }
 }
+
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
 }
