@@ -20,15 +20,20 @@ import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
-class KtorClientImpl() : Client, Disposable {
-    private val url = "http://0.0.0.0:8080"
+@Suppress("TooManyFunctions")
+class KtorClientImpl : Client, Disposable {
+    companion object {
+        private const val url = "http://0.0.0.0:8080"
+        private const val requestTimeoutMillisConst: Long = 1000
+        private const val connectTimeoutMillisConst: Long = 1000
+    }
     private val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = GsonSerializer()
         }
         install(HttpTimeout) {
-            requestTimeoutMillis = 1000
-            connectTimeoutMillis = 1000
+            requestTimeoutMillis = requestTimeoutMillisConst
+            connectTimeoutMillis = connectTimeoutMillisConst
         }
         install(Auth)
     }

@@ -2,7 +2,7 @@ package com.intellij.plugin.gamification.services.network
 
 import com.intellij.openapi.Disposable
 
-interface Client: Disposable {
+interface Client : Disposable {
     suspend fun getUserByName(name: String): User
     suspend fun getAllUsers(): List<User>
 
