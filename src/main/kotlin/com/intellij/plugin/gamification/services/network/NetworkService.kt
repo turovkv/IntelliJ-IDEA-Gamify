@@ -33,11 +33,11 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
     }
 
     data class ClientState(
-        var isSignedIn: Boolean,
-        var user: User
+        var isSignedIn: Boolean = false,
+        var user: User = User("No name")
     )
 
-    private var state = ClientState(false, User("No name")) // ?
+    private var state = ClientState()
     override fun getState() = state
     override fun loadState(state: ClientState) {
         this.state = state
