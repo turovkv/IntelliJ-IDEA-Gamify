@@ -11,6 +11,8 @@ import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanics
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
+import com.intellij.plugin.gamification.services.network.NetworkService
+import com.intellij.plugin.gamification.services.network.Notification
 import com.intellij.util.EventDispatcher
 
 @State(
@@ -71,6 +73,12 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
         if (addPoints != 0) {
             getPublisher().progressChanged(getCurrentGameEvent())
         }
+
+        NetworkService
+            .getInstance()
+            .addNotificationByText(
+                name
+            )
     }
 
     fun getCurrentGameEvent() = GameEvent(getLevel(), getProgress())
