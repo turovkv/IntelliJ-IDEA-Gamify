@@ -1,11 +1,17 @@
 package com.intellij.plugin.gamification.toolWindow
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.plugin.gamification.actions.GameStatisticsDialog
+import com.intellij.plugin.gamification.services.network.ClientException
+import com.intellij.plugin.gamification.services.network.NetworkService
+import kotlinx.coroutines.runBlocking
 import java.awt.CardLayout
 import java.awt.event.ActionListener
 import javax.swing.JFrame
 import javax.swing.JPanel
+import javax.swing.JPasswordField
+import javax.swing.JTextField
 
 class MainFrame(project: Project) : JFrame() {
 
@@ -29,10 +35,24 @@ class MainFrame(project: Project) : JFrame() {
         add("SECOND", secondPage)
 
         val listener = ActionListener {
-            cLayout.show(
-                contentPane,
-                "SECOND"
-            )
+            val login = (contentPane.getComponent(1) as JTextField).text
+            val password = (contentPane.getComponent(3) as JPasswordField).password.toString()
+
+            try {
+                runBlocking {
+                    NetworkService.getInstance().signUp(login, password)
+                }
+                cLayout.show(
+                    contentPane,
+                    "SECOND"
+                )
+            } catch (e: ClientException) {
+                Logger
+                    .getFactory()
+                    .getLoggerInstance("Gamify")
+                    .error(e)
+                println(e.localizedMessage)
+            }
         }
 
         val firstPage: JPanel = SignInPanel(listener).signPanel
