@@ -22,7 +22,7 @@ class RewardStatisticsService : PersistentStateComponent<RewardStatisticsService
     class PluginState {
         var allPoints: Int = 0
         var pointsOnLevel: Int = 0
-        var level: Int = 0
+        var level: Int = 1
 
         var countFeatureUsages: MutableMap<String, Int> = HashMap()
         var pointsPerFeature: MutableMap<String, Int> = HashMap()
