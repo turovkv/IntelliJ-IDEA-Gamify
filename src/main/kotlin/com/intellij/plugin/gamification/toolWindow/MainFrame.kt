@@ -4,37 +4,35 @@ import com.intellij.openapi.project.Project
 import com.intellij.plugin.gamification.actions.GameStatisticsDialog
 import java.awt.CardLayout
 import java.awt.event.ActionListener
-import javax.swing.JFrame
 import javax.swing.JPanel
 
-class MainFrame(project: Project) : JFrame() {
+class MainFrame(project: Project) {
+    private var cardLayout: CardLayout? = null
+    val panel = JPanel()
 
     init {
-        title = "Swing Application"
-        defaultCloseOperation = DISPOSE_ON_CLOSE
-        isLocationByPlatform = true
-
-        val cLayout = CardLayout()
-        layout = cLayout
-
-        val sndListener = ActionListener {
-            cLayout.show(
-                contentPane,
-                "FIRST"
-            )
-        }
-
-        val secondPage: JPanel = GameStatisticsDialog(project, sndListener).splitter
-        add("SECOND", secondPage)
+        cardLayout = CardLayout()
+        panel.layout = cardLayout
 
         val firstPage: JPanel = SignInPanel {
-            cLayout.show(
-                contentPane,
+            cardLayout!!.show(
+                panel,
                 "SECOND"
             )
         }.signPanel
-        add("FIRST", firstPage)
-        cLayout.show(contentPane, "FIRST")
-        isVisible = true
+
+        panel.add(firstPage, "FIRST")
+
+        val sndListener = ActionListener {
+            cardLayout!!.show(
+                panel,
+                "FIRST"
+            )
+        }
+        val secondPage: JPanel = GameStatisticsDialog(project, sndListener).splitter
+
+        panel.add(secondPage, "SECOND")
+
+        cardLayout!!.first(panel)
     }
 }
