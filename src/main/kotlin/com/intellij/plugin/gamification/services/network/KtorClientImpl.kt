@@ -23,10 +23,11 @@ import io.ktor.http.contentType
 @Suppress("TooManyFunctions")
 class KtorClientImpl : Client, Disposable {
     companion object {
-        private const val url = "http://0.0.0.0:8080"
+        private const val url = "http://0.0.0.0:8081"
         private const val requestTimeoutMillisConst: Long = 1000
         private const val connectTimeoutMillisConst: Long = 1000
     }
+
     private val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = GsonSerializer()
@@ -64,13 +65,13 @@ class KtorClientImpl : Client, Disposable {
     }
 
     override fun signIn(newName: String, newPassword: String) { // maybe should check on server
-        val auth = httpClient.feature(Auth)
-        if (auth != null) {
+        val auth = httpClient.feature(Auth) ?: throw ClientException("Auth not installed")
+        if (auth.providers.isNotEmpty()) {
             auth.providers.removeAt(0)
-            auth.basic {
-                username = newName
-                password = newPassword
-            }
+        }
+        auth.basic {
+            username = newName
+            password = newPassword
         }
     }
 
