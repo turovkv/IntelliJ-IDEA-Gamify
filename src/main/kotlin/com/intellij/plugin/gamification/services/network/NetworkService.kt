@@ -30,11 +30,12 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
                 NotificationDisplayType.BALLOON,
                 true
             )
+        const val requestDelay: Long = 1000
     }
 
     class ClientState {
         var isSignedIn: Boolean = false
-        var user: User = User("No name")
+        var user: User = User()
     }
 
     private var state = ClientState()
@@ -43,10 +44,9 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
         this.state = state
     }
 
-    private val client: Client
+    private val client: Client = KtorClientImpl()
 
-    init {
-        client = KtorClientImpl()
+    override fun initializeComponent() {
         if (state.isSignedIn) {
             client.signIn(
                 state.user.name,
@@ -142,7 +142,7 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
                     println(e.localizedMessage)
                 }
                 // what if there is no connection to the internet? :(
-                delay(1000)
+                delay(requestDelay)
             }
         }
     }

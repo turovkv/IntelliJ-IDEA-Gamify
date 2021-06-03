@@ -1,7 +1,7 @@
 package com.intellij.plugin.gamification.services.network
 
 data class User(
-    var name: String,
+    var name: String = "No name",
     var userInfo: UserInfo = UserInfo()
 )
 

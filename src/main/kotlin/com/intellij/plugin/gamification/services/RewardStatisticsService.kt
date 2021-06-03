@@ -12,7 +12,6 @@ import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanics
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
 import com.intellij.plugin.gamification.services.network.NetworkService
-import com.intellij.plugin.gamification.services.network.Notification
 import com.intellij.util.EventDispatcher
 
 @State(
