@@ -32,10 +32,10 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
             )
     }
 
-    data class ClientState(
-        var isSignedIn: Boolean = false,
+    class ClientState {
+        var isSignedIn: Boolean = false
         var user: User = User("No name")
-    )
+    }
 
     private var state = ClientState()
     override fun getState() = state
@@ -126,6 +126,9 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
         GlobalScope.launch {
             while (true) {
                 try {
+                    if (!state.isSignedIn) {
+                        continue
+                    }
                     getNotifications().map {
                         NOTIFICATION_GROUP
                             .createNotification(it.text, NotificationType.INFORMATION)
