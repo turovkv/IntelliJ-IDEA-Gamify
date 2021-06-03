@@ -16,6 +16,7 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -77,7 +78,7 @@ class KtorClientImpl : Client, Disposable {
 
     override suspend fun updateUserInfo(userInfo: UserInfo): Unit =
         requestHandler("updateUserInfo", true) {
-            httpClient.get("$url/users/update") {
+            httpClient.put("$url/users/update") {
                 contentType(ContentType.Application.Json)
                 body = userInfo
             }
