@@ -73,9 +73,9 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
     }
 
     suspend fun signUp(name: String, password: String) {
+        client.signUp(name, password)
         state.user = User(name, state.user.userInfo)
         setPassword(state.user.name, password)
-        client.signUp(name, password)
         client.updateUserInfo(state.user.userInfo)
         state.isSignedIn = true
     }

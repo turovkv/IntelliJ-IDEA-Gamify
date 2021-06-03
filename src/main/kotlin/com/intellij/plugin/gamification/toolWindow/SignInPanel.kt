@@ -1,5 +1,9 @@
 package com.intellij.plugin.gamification.toolWindow
 
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.plugin.gamification.services.network.ClientException
+import com.intellij.plugin.gamification.services.network.NetworkService
+import kotlinx.coroutines.runBlocking
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
@@ -47,9 +51,18 @@ class SignInPanel(private val f: () -> Unit) {
         val btnLogin = JButton("Log In")
 
         btnLogin.addActionListener {
-            f()
-            println(txt.text)
-            println(pswd.password)
+            try {
+                runBlocking {
+                    NetworkService.getInstance().signUp(txt.text, pswd.password.toString())
+                }
+                f()
+            } catch (e: ClientException) {
+                Logger
+                    .getFactory()
+                    .getLoggerInstance("Gamify")
+                    .error(e)
+                println(e.localizedMessage)
+            }
         }
         signPanel.add(btnLogin, constraints)
     }
