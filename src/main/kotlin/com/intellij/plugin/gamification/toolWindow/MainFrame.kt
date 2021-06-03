@@ -11,7 +11,6 @@ class MainFrame(project: Project) : JFrame() {
 
     init {
         title = "Swing Application"
-//        setSize(1200, 800)
         defaultCloseOperation = DISPOSE_ON_CLOSE
         isLocationByPlatform = true
 
@@ -28,14 +27,12 @@ class MainFrame(project: Project) : JFrame() {
         val secondPage: JPanel = GameStatisticsDialog(project, sndListener).splitter
         add("SECOND", secondPage)
 
-        val listener = ActionListener {
+        val firstPage: JPanel = SignInPanel {
             cLayout.show(
                 contentPane,
                 "SECOND"
             )
-        }
-
-        val firstPage: JPanel = SignInPanel(listener).signPanel
+        }.signPanel
         add("FIRST", firstPage)
         cLayout.show(contentPane, "FIRST")
         isVisible = true

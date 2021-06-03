@@ -2,53 +2,55 @@ package com.intellij.plugin.gamification.toolWindow
 
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
-import java.awt.event.ActionListener
+import java.awt.Insets
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JPasswordField
 import javax.swing.JTextField
 
-class SignInPanel(listener: ActionListener?) {
+class SignInPanel(private val f: () -> Unit) {
 
-    val signPanel = JPanel()
+    val signPanel = JPanel(GridBagLayout())
+    var constraints = GridBagConstraints()
 
     companion object {
-        private const val fieldSize = 20
+        private const val fieldSize = 15
+        val ins = Insets(10, 10, 10, 10)
     }
 
     init {
+        constraints.anchor = GridBagConstraints.WEST
+        constraints.insets = ins
 
-        val layout = GridBagLayout()
-        val gbc = GridBagConstraints()
-        signPanel.layout = layout
+        constraints.gridx = 0
+        constraints.gridy = 0
+        signPanel.add(JLabel("Username:"), constraints)
 
-        gbc.fill = GridBagConstraints.HORIZONTAL
-        val lbLogin = JLabel("Login: ")
-        gbc.gridx = 0
-        gbc.gridy = 0
-        signPanel.add(lbLogin, gbc)
+        constraints.gridx = 1
+        val txt = JTextField(fieldSize)
+        signPanel.add(txt, constraints)
 
-        val tfUsername = JTextField(fieldSize)
-        gbc.gridx = 1
-        gbc.gridy = 0
-        signPanel.add(tfUsername, gbc)
+        constraints.gridx = 0
+        constraints.gridy = 1
+        signPanel.add(JLabel("Password:"), constraints)
 
-        val lbPassword = JLabel("Password: ")
-        gbc.gridx = 0
-        gbc.gridy = 1
-        signPanel.add(lbPassword, gbc)
+        constraints.gridx = 1
+        val pswd = JPasswordField(fieldSize)
+        signPanel.add(pswd, constraints)
 
-        val pfPassword = JPasswordField(fieldSize)
-        gbc.gridx = 1
-        gbc.gridy = 1
-        signPanel.add(pfPassword, gbc)
+        constraints.gridx = 0
+        constraints.gridy = 2
+        constraints.gridwidth = 2
+        constraints.anchor = GridBagConstraints.CENTER
 
         val btnLogin = JButton("Log In")
 
-        btnLogin.addActionListener(listener)
-        gbc.gridx = 1
-        gbc.gridy = 2
-        signPanel.add(btnLogin)
+        btnLogin.addActionListener {
+            f()
+            println(txt.text)
+            println(pswd.password)
+        }
+        signPanel.add(btnLogin, constraints)
     }
 }
