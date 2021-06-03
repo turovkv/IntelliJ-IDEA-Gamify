@@ -3,6 +3,7 @@ package com.intellij.plugin.gamification.actions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Splitter
+import com.intellij.plugin.gamification.constants.Colors
 import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.services.RewardInfoItem
@@ -15,32 +16,37 @@ import com.intellij.util.ui.ColumnInfo
 import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.ListTableModel
 import java.awt.BorderLayout
-import java.awt.Color
 import java.awt.Dimension
 import java.awt.Font
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.event.ActionListener
-import java.util.Random
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import javax.swing.Box
 import javax.swing.JButton
 import javax.swing.JLabel
+import javax.swing.JMenuItem
 import javax.swing.JPanel
+import javax.swing.JPopupMenu
 import javax.swing.JProgressBar
+import javax.swing.JToolBar
 import javax.swing.ListSelectionModel
 import javax.swing.SwingConstants
+import javax.swing.SwingUtilities
 import kotlin.Comparator
 
 class GameStatisticsDialog(project: Project?, listener: ActionListener?) : DialogWrapper(project, true) {
 
     val splitter = Splitter(true)
-    val list = listener
+    private val list = listener
+    val stats = RewardStatisticsService.getInstance()
+    private val color = Colors()
+    val toolBar = JToolBar()
+    val popupMenu = JPopupMenu()
+    var popupShown = false
 
     private companion object {
-        const val rgbMax = 256
-        const val rgbMax1 = 254
-        const val rgbMax2 = 255
-        const val rand1 = 176
-        const val rand2 = 213
         const val textSize = 24
 
         object Dialog {
@@ -87,8 +93,31 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         return "#com.intellij.plugin.gamification.actions.GameStatisticsDialog"
     }
 
+    fun createBox() {
+        val box = Box.createHorizontalBox()
+        val stnButton = JButton("Settings")
+
+        box.add(stnButton)
+
+        stnButton.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent?) {
+                val shown = popupShown
+                SwingUtilities.invokeLater { popupShown = shown }
+            }
+        })
+
+        stnButton.addActionListener {
+            if (popupShown) {
+                popupMenu.isVisible = false
+                popupShown = false
+            } else {
+                popupMenu.show(stnButton, 0, stnButton.height)
+            }
+        }
+        toolBar.add(box)
+    }
+
     override fun createCenterPanel(): JPanel {
-        val stats = RewardStatisticsService.getInstance()
         val rewards = stats.getRewardInfo()
         val table = TableView(ListTableModel(COLUMNS, rewards, 0))
         table.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
@@ -96,6 +125,8 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         val tablePanel = JPanel(BorderLayout())
         tablePanel.add(ScrollPaneFactory.createScrollPane(table), BorderLayout.CENTER)
         ScrollingUtil.ensureSelectionExists(table)
+
+        createBox()
 
         val contentPanel = JPanel()
         val layout = GridBagLayout()
@@ -108,8 +139,8 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
 
         val statsInfo = JLabel("Level: " + stats.getLevel().toString(), SwingConstants.CENTER)
         statsInfo.font = Font("Calibri", Font.PLAIN, textSize)
-        val clearButton = JButton("Clear Stats")
-        val logOutButton = JButton("Log Out")
+        val clearButton = JMenuItem("Clear Stats")
+        val logOutButton = JMenuItem("Log Out")
 
         val progress1: JProgressBar = object : JProgressBar() {
             override fun updateUI() {
@@ -117,34 +148,14 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
                 setUI(ProgressCircleUI())
             }
         }
-        var level = stats.getLevel()
 
-        val rnd = Random()
-        var temp = level.toLong()
-        rnd.setSeed(temp)
-        var a = rnd.nextInt() % rgbMax
-        var b = (a - temp * rand1) % rgbMax2
-        var c = (b + temp * rand2) % rgbMax1
-
-        progress1.foreground = Color(kotlin.math.abs(a), kotlin.math.abs(b).toInt(), kotlin.math.abs(c).toInt())
+        progress1.foreground = color.getColor(stats.getLevel())
         val model = progress.model
         progress1.model = model
 
-        fun update() {
-            level = stats.getLevel()
-
-            temp = level.toLong()
-            rnd.setSeed(temp)
-            a = rnd.nextInt() % rgbMax
-            b = (a - temp * rand1) % rgbMax2
-            c = (b + temp * rand2) % rgbMax1
-            progress1.foreground =
-                Color(kotlin.math.abs(a), kotlin.math.abs(b).toInt(), kotlin.math.abs(c).toInt())
-        }
-
         clearButton.addActionListener {
             stats.clear()
-            update()
+            progress1.foreground = color.getColor(stats.getLevel())
         }
 
         logOutButton.addActionListener(list)
@@ -156,8 +167,9 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         gbc.gridx = 0
         gbc.gridy = 1
         contentPanel.add(statsInfo, gbc)
-        tablePanel.add(clearButton, BorderLayout.SOUTH)
-        tablePanel.add(logOutButton, BorderLayout.NORTH)
+        popupMenu.add(clearButton)
+        popupMenu.add(logOutButton)
+        tablePanel.add(toolBar, BorderLayout.SOUTH)
 
         splitter.isShowDividerControls = true
         splitter.firstComponent = contentPanel
@@ -168,9 +180,7 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
                 override fun progressChanged(event: GameEvent) {
                     progress.value = event.progress
                     statsInfo.text = "Level: ${event.level}"
-                    if (stats.getLevel() != level && statsInfo.text != "Level: 0") {
-                        update()
-                    }
+                    progress1.foreground = color.getColor(stats.getLevel())
                     table.setModelAndUpdateColumns(
                         ListTableModel(COLUMNS, stats.getRewardInfo(), 0)
                     )
