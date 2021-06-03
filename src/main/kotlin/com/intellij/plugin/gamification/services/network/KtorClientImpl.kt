@@ -122,7 +122,7 @@ class KtorClientImpl : Client, Disposable {
         } catch (e: ResponseException) {
             val errorMessage: String = e.response.readText()
             if (errorMessage.isNotEmpty()) {
-                throw ClientException("Failed to $requestName ($errorMessage)")
+                throw ClientException("Failed to $requestName ($errorMessage)", e)
             } else {
                 throw ClientException("Failed to $requestName (response status is not OK)", e)
             }
