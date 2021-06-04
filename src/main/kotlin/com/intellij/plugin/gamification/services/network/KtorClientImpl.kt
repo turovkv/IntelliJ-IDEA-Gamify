@@ -78,7 +78,7 @@ class KtorClientImpl : Client, Disposable {
 
     override suspend fun updateUserInfo(userInfo: UserInfo): Unit =
         requestHandler("updateUserInfo", true) {
-            httpClient.put("$url/users/update") {
+            httpClient.put("$url/users/with-auth/update") {
                 contentType(ContentType.Application.Json)
                 body = userInfo
             }
@@ -86,12 +86,12 @@ class KtorClientImpl : Client, Disposable {
 
     override suspend fun getNotifications(): List<Notification> =
         requestHandler("getNotifications", true) {
-            httpClient.get("$url/users/notifications")
+            httpClient.get("$url/users/with-auth/notifications")
         }
 
     override suspend fun addNotification(notification: Notification): Unit =
         requestHandler("addNotification", true) {
-            httpClient.post("$url/users/notifications") {
+            httpClient.post("$url/users/with-auth/notifications") {
                 contentType(ContentType.Application.Json)
                 body = notification
             }
@@ -99,12 +99,12 @@ class KtorClientImpl : Client, Disposable {
 
     override suspend fun subscribe(nameTo: String): Unit =
         requestHandler("subscribe", true) {
-            httpClient.post("$url/users/subscribing/$nameTo")
+            httpClient.post("$url/users/with-auth/subscribing/$nameTo")
         }
 
     override suspend fun unsubscribe(nameFrom: String): Unit =
         requestHandler("subscribe", true) {
-            httpClient.delete("$url/users/subscribing/$nameFrom")
+            httpClient.delete("$url/users/with-auth/subscribing/$nameFrom")
         }
 
     private suspend fun <T> requestHandler(
