@@ -15,7 +15,7 @@ class GameToolWindow : ToolWindowFactory, DumbAware {
         val subscribe = SubscribePanel()
 
         tabPane.add(panel1ID, MainFrame(project).panel)
-        tabPane.add(panel3ID, subscribe.subPanel)
+        tabPane.add(panel3ID, subscribe.splitter)
 
         parent.add(tabPane)
     }
