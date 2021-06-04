@@ -14,7 +14,7 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 
 private fun Route.notificationRouting() {
-    route("/users") {
+    route("/users/with-auth") {
         //get notifications
         get("notifications") {
             handleResponse {

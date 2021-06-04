@@ -43,7 +43,7 @@ private fun Route.basicRouting(repository: GamifyRepository) {
 }
 
 private fun Route.basicRoutingWithAuth() {
-    route("/users") {
+    route("/users/with-auth") {
         //updateUser
         put("update") {
             handleResponse {
