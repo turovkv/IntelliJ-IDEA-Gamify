@@ -23,13 +23,18 @@ import java.awt.GridBagLayout
 import java.awt.event.ActionListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import javax.swing.Box
+import javax.swing.ImageIcon
 import javax.swing.JButton
+import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JMenuItem
 import javax.swing.JPanel
 import javax.swing.JPopupMenu
 import javax.swing.JProgressBar
+import javax.swing.JTextArea
 import javax.swing.JToolBar
 import javax.swing.ListSelectionModel
 import javax.swing.SwingConstants
@@ -42,12 +47,15 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
     private val list = listener
     val stats = RewardStatisticsService.getInstance()
     private val color = Colors()
-    val toolBar = JToolBar()
-    val popupMenu = JPopupMenu()
+    private val toolBar = JToolBar()
+    private val popupMenu = JPopupMenu()
     var popupShown = false
 
     private companion object {
         const val textSize = 24
+        const val buttonSize = 37
+        const val frameWidth = 750
+        const val frameHeight = 350
 
         object Dialog {
             const val with = 400
@@ -93,11 +101,11 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         return "#com.intellij.plugin.gamification.actions.GameStatisticsDialog"
     }
 
-    fun createBox() {
-        val box = Box.createHorizontalBox()
-        val stnButton = JButton("Settings")
+    private fun createBox() {
 
-        box.add(stnButton)
+        val stnButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/gear30.png")))
+
+        stnButton.preferredSize = Dimension(buttonSize, buttonSize)
 
         stnButton.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
@@ -114,7 +122,42 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
                 popupMenu.show(stnButton, 0, stnButton.height)
             }
         }
-        toolBar.add(box)
+        stnButton.isBorderPainted = false
+        stnButton.isOpaque = false
+        stnButton.isContentAreaFilled = false
+
+        val questionButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/info30.png")))
+
+        questionButton.addActionListener {
+            val f = JFrame()
+            val textArea = JTextArea()
+
+            val fileName = GameStatisticsDialog::class.java.getResource("/GameLogic.txt")
+            val text = BufferedReader(InputStreamReader(fileName.openStream()))
+            var line: String?
+            while (text.readLine().also { line = it } != null) {
+                textArea.append(line)
+                textArea.append("\n")
+            }
+            text.close()
+
+            textArea.isEditable = false
+            f.add(textArea)
+            f.defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
+
+            f.setSize(frameWidth, frameHeight)
+            f.isVisible = true
+        }
+
+        questionButton.preferredSize = Dimension(buttonSize, buttonSize)
+
+        questionButton.isBorderPainted = false
+        questionButton.isOpaque = false
+        questionButton.isContentAreaFilled = false
+
+        toolBar.add(Box.createHorizontalGlue())
+        toolBar.add(stnButton)
+        toolBar.add(questionButton)
     }
 
     override fun createCenterPanel(): JPanel {
@@ -127,11 +170,6 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         ScrollingUtil.ensureSelectionExists(table)
 
         createBox()
-
-        val contentPanel = JPanel()
-        val layout = GridBagLayout()
-        val gbc = GridBagConstraints()
-        contentPanel.layout = layout
 
         val progress = JProgressBar()
         progress.isStringPainted = true
@@ -149,16 +187,24 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
             }
         }
 
-        progress1.foreground = color.getColor(stats.getLevel())
+        var setClr = color.getColor(stats.getLevel())
+        progress1.foreground = setClr
         val model = progress.model
         progress1.model = model
 
         clearButton.addActionListener {
             stats.clear()
-            progress1.foreground = color.getColor(stats.getLevel())
+            setClr = color.getColor(stats.getLevel())
+            progress1.foreground = setClr
         }
 
         logOutButton.addActionListener(list)
+
+        val contentPanel = JPanel()
+        contentPanel.add(toolBar, BorderLayout.PAGE_START)
+        val layout = GridBagLayout()
+        val gbc = GridBagConstraints()
+        contentPanel.layout = layout
 
         gbc.fill = GridBagConstraints.HORIZONTAL
         gbc.gridx = 0
@@ -169,10 +215,13 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         contentPanel.add(statsInfo, gbc)
         popupMenu.add(clearButton)
         popupMenu.add(logOutButton)
-        tablePanel.add(toolBar, BorderLayout.SOUTH)
+
+        val panel = JPanel(BorderLayout())
+        panel.add(toolBar, BorderLayout.PAGE_START)
+        panel.add(contentPanel, BorderLayout.CENTER)
 
         splitter.isShowDividerControls = true
-        splitter.firstComponent = contentPanel
+        splitter.firstComponent = panel
         splitter.secondComponent = tablePanel
 
         stats.addListener(
@@ -180,7 +229,8 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
                 override fun progressChanged(event: GameEvent) {
                     progress.value = event.progress
                     statsInfo.text = "Level: ${event.level}"
-                    progress1.foreground = color.getColor(stats.getLevel())
+                    setClr = color.getColor(stats.getLevel())
+                    progress1.foreground = setClr
                     table.setModelAndUpdateColumns(
                         ListTableModel(COLUMNS, stats.getRewardInfo(), 0)
                     )
@@ -189,7 +239,6 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
             },
             disposable
         )
-
         return splitter
     }
 }
