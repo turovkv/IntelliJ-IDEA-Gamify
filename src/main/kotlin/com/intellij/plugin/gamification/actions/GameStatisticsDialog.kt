@@ -187,7 +187,12 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
             }
         }
 
+        color.setColors()
         var setClr = color.getColor(stats.getLevel())
+        if (setClr == null) {
+            color.setColors()
+            setClr = color.getColor(stats.getLevel())
+        }
         progress1.foreground = setClr
         val model = progress.model
         progress1.model = model
