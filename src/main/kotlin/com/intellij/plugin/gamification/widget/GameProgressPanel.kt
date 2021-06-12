@@ -75,13 +75,16 @@ class GameProgressPanel : TextPanel(), CustomStatusBarWidget {
     fun updateState(event: GameEvent) {
         progress = event.progress
         level = event.level
-        color = myColors.getColor(level)
+
+        myColors.setColors()
+        color = myColors.getColor(level)!!
 
         if (!isShowing) {
             return
         }
         repaint()
     }
+
     init {
         isFocusable = false
         setTextAlignment(CENTER_ALIGNMENT)
