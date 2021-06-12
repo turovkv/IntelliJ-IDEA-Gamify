@@ -50,12 +50,17 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
     private val toolBar = JToolBar()
     private val popupMenu = JPopupMenu()
     var popupShown = false
+    var popupShown1 = false
+    private val rewards = stats.getRewardInfo()
+    val table = TableView(ListTableModel(COLUMNS, rewards, 0))
 
     private companion object {
         const val textSize = 24
         const val buttonSize = 37
         const val frameWidth = 750
         const val frameHeight = 350
+        const val tableWidth = 400
+        const val tableHeight = 300
 
         object Dialog {
             const val with = 400
@@ -101,8 +106,7 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         return "#com.intellij.plugin.gamification.actions.GameStatisticsDialog"
     }
 
-    private fun createBox() {
-
+    private fun createSettings(): JButton {
         val stnButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/gear30.png")))
 
         stnButton.preferredSize = Dimension(buttonSize, buttonSize)
@@ -125,7 +129,10 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         stnButton.isBorderPainted = false
         stnButton.isOpaque = false
         stnButton.isContentAreaFilled = false
+        return stnButton
+    }
 
+    private fun createInfo(): JButton {
         val questionButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/info30.png")))
 
         questionButton.addActionListener {
@@ -154,20 +161,56 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         questionButton.isBorderPainted = false
         questionButton.isOpaque = false
         questionButton.isContentAreaFilled = false
-
-        toolBar.add(Box.createHorizontalGlue())
-        toolBar.add(stnButton)
-        toolBar.add(questionButton)
+        return questionButton
     }
 
-    override fun createCenterPanel(): JPanel {
-        val rewards = stats.getRewardInfo()
-        val table = TableView(ListTableModel(COLUMNS, rewards, 0))
+    private fun createTable(): JButton {
         table.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
 
         val tablePanel = JPanel(BorderLayout())
         tablePanel.add(ScrollPaneFactory.createScrollPane(table), BorderLayout.CENTER)
         ScrollingUtil.ensureSelectionExists(table)
+
+        val popup = JPopupMenu()
+        popup.add(tablePanel)
+
+        popup.maximumSize = Dimension(tableWidth, tableHeight)
+        popup.preferredSize = Dimension(tableWidth, tableHeight)
+        popup.minimumSize = Dimension(tableWidth, tableHeight)
+
+        val tableButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/activity30.png")))
+        tableButton.preferredSize = Dimension(buttonSize, buttonSize)
+
+        tableButton.isBorderPainted = false
+        tableButton.isOpaque = false
+        tableButton.isContentAreaFilled = false
+
+        tableButton.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent?) {
+                val shown = popupShown1
+                SwingUtilities.invokeLater { popupShown1 = shown }
+            }
+        })
+
+        tableButton.addActionListener {
+            if (popupShown1) {
+                popup.isVisible = false
+                popupShown1 = false
+            } else {
+                popup.show(tableButton, 0, tableButton.height)
+            }
+        }
+        return tableButton
+    }
+
+    private fun createBox() {
+        toolBar.add(Box.createHorizontalGlue())
+        toolBar.add(createSettings())
+        toolBar.add(createInfo())
+        toolBar.add(createTable())
+    }
+
+    override fun createCenterPanel(): JPanel {
 
         createBox()
 
@@ -206,7 +249,6 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         logOutButton.addActionListener(list)
 
         val contentPanel = JPanel()
-        contentPanel.add(toolBar, BorderLayout.PAGE_START)
         val layout = GridBagLayout()
         val gbc = GridBagConstraints()
         contentPanel.layout = layout
@@ -227,7 +269,7 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
 
         splitter.isShowDividerControls = true
         splitter.firstComponent = panel
-        splitter.secondComponent = tablePanel
+//        splitter.secondComponent = tablePanel
 
         stats.addListener(
             object : GameEventListener {
