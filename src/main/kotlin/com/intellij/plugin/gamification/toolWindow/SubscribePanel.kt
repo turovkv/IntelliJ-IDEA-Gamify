@@ -1,5 +1,9 @@
 package com.intellij.plugin.gamification.toolWindow
 
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.plugin.gamification.services.network.ClientException
+import com.intellij.plugin.gamification.services.network.NetworkService
+import kotlinx.coroutines.runBlocking
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import javax.swing.JButton
@@ -26,6 +30,17 @@ class SubscribePanel {
 
         btnLogin.addActionListener {
             println("Try to find user: " + tfUsername.text)
+            try {
+                runBlocking {
+                    NetworkService.getInstance().subscribe(tfUsername.text)
+                }
+            } catch (e: ClientException) {
+                Logger
+                    .getFactory()
+                    .getLoggerInstance("Gamify")
+                    .error(e)
+                println(e.localizedMessage)
+            }
         }
 
         gbc.fill = GridBagConstraints.HORIZONTAL

@@ -30,7 +30,7 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
                 NotificationDisplayType.BALLOON,
                 true
             )
-        const val requestDelay: Long = 1000
+        const val requestDelay: Long = 4000
     }
 
     class ClientState {

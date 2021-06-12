@@ -128,7 +128,10 @@ class KtorClientImpl : Client, Disposable {
             } else {
                 throw ClientException("Failed to $requestName (response status is not OK)", e)
             }
-        }
+        } /*catch (e: Exception) {
+            throw ClientException("Failed to $requestName (internal error)", e)
+
+        }*/
     }
 
     override fun dispose() {
