@@ -18,7 +18,7 @@ private fun Route.notificationRouting() {
         //get notifications
         get("notifications") {
             handleResponse {
-                return@handleResponse call.respond(repository.getNotifications())
+                return@handleResponse repository.getNotifications()
             }
         }
 
