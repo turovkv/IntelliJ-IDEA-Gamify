@@ -17,18 +17,19 @@ import java.security.MessageDigest
 
 open class MongoImplRepository(protected val storage: Storage = Storage()) : GamifyRepository {
     data class Storage(
-        val client: CoroutineClient = KMongo.createClient().coroutine, //use coroutine extension
-        val database: CoroutineDatabase = client.getDatabase("gamify"), //normal java driver usage
+        val client: CoroutineClient = KMongo.createClient().coroutine,
+        val database: CoroutineDatabase = client.getDatabase("gamify"),
 
         val userHolders: CoroutineCollection<UserHolder> = database.getCollection(),
         val subscriptions: CoroutineCollection<Subscription> = database.getCollection(),
         val notificationHolders: CoroutineCollection<NotificationHolder> = database.getCollection(),
+
         val digestFunction: (String) -> ByteArray = getDigestFunction("SHA-256") { "ktor${it.length}" },
     )
 
 
     protected suspend fun getUserHolderByName(name: String): UserHolder {
-        return storage.userHolders.findOne(UserHolder::user / User::name eq name)
+        return storage.userHolders.findOne(UserHolder::user / User::name eq name) // is it too slow ?
             ?: throw RepositoryException("No user with name $name")
     }
 
@@ -44,12 +45,15 @@ open class MongoImplRepository(protected val storage: Storage = Storage()) : Gam
         if (storage.userHolders.countDocuments(UserHolder::user / User::name eq credential.name) != 0L) {
             throw RepositoryException("User with name ${credential.name} already exists")
         }
-        storage.userHolders.insertOne(
-            UserHolder(
-                user = User(credential.name),
-                passwordHash = storage.digestFunction(credential.password),
-            )
-        )
+        if (!storage.userHolders.insertOne(
+                UserHolder(
+                    user = User(credential.name),
+                    passwordHash = storage.digestFunction(credential.password),
+                )
+            ).wasAcknowledged()
+        ) {
+            throw RepositoryException("Unable to create user ${credential.name}")
+        }
     }
 
     override suspend fun authenticate(credential: UserPasswordCredential): GamifyRepository.Authorized? {

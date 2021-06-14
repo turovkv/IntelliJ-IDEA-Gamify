@@ -23,24 +23,27 @@ class MongoImplRepositoryAuthorized(
 
     override val userPrincipal: UserIdPrincipal = UserIdPrincipal(credential.name)
     private val userHolder: UserHolder = runBlocking { getUserHolderByName(credential.name) }
-    private val userName: String = userHolder.user.name
+    private val currentUserName: String = userHolder.user.name
 
     override suspend fun updateUserInfo(userInfo: UserInfo) {
         val updateResult = storage.userHolders.updateOne(
-            UserHolder::user / User::name eq userName,
+            UserHolder::user / User::name eq currentUserName,
             setValue(UserHolder::user / User::userInfo, userInfo)
         )
         if (!updateResult.wasAcknowledged()) {
-            throw RepositoryException("Unable to update $userName")
+            throw RepositoryException("Unable to update from user $currentUserName")
         }
     }
 
     override suspend fun addNotification(notification: Notification) {
-        storage.notificationHolders.insertOne(NotificationHolder(notification, userName))
+        val insertResult = storage.notificationHolders.insertOne(NotificationHolder(notification, currentUserName))
+        if (!insertResult.wasAcknowledged()) {
+            throw RepositoryException("Unable to add notification from user $currentUserName")
+        }
     }
 
     override suspend fun subscribe(nameTo: String) {
-        val subscription = Subscription(userName, nameTo)
+        val subscription = Subscription(currentUserName, nameTo)
         if (storage.subscriptions.countDocuments(
                 and(
                     Subscription::from eq subscription.from,
@@ -50,23 +53,30 @@ class MongoImplRepositoryAuthorized(
         ) {
             storage.subscriptions.insertOne(subscription)
         }
+        //else ??
     }
 
     override suspend fun unsubscribe(nameTo: String) {
-        val subscription = Subscription(userName, nameTo)
-        val subscriptionCondition = and(
+        val subscription = Subscription(currentUserName, nameTo)
+        val subscriptionQuery = and(
             Subscription::from eq subscription.from,
             Subscription::to eq subscription.to
         )
 
-        if (storage.subscriptions.countDocuments(subscriptionCondition) != 0L) {
-            storage.subscriptions.deleteOne(subscriptionCondition)
+        if (storage.subscriptions.countDocuments(subscriptionQuery) != 0L) {
+            storage.subscriptions.deleteOne(subscriptionQuery)
         }
+        //else ??
     }
 
     override suspend fun getNotifications(): List<Notification> {
         val list: MutableList<NotificationHolder> = arrayListOf()
-        for (userNameTo in storage.subscriptions.find(Subscription::from eq userName).toList().map { it.to }) {
+        val namesSubscribedTo = storage
+            .subscriptions
+            .find(Subscription::from eq currentUserName)
+            .toList()
+            .map { it.to }
+        for (userNameTo in namesSubscribedTo) {
             list.addAll(
                 storage.notificationHolders.find(
                     NotificationHolder::author eq userNameTo,
@@ -76,7 +86,7 @@ class MongoImplRepositoryAuthorized(
         }
         list.sortBy { it.serverTime }
         storage.userHolders.updateOne(
-            UserHolder::user / User::name eq userName,
+            UserHolder::user / User::name eq currentUserName,
             setValue(UserHolder::lastWatched, Timestamp(System.currentTimeMillis()))
         )
         return list.map { it.notification }
