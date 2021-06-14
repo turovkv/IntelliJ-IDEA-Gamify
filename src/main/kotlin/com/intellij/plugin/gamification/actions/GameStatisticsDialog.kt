@@ -23,8 +23,11 @@ import java.awt.GridBagLayout
 import java.awt.event.ActionListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.awt.image.BufferedImage
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.util.ArrayList
+import javax.imageio.ImageIO
 import javax.swing.Box
 import javax.swing.ImageIcon
 import javax.swing.JButton
@@ -53,6 +56,14 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
     var popupShown1 = false
     private val rewards = stats.getRewardInfo()
     val table = TableView(ListTableModel(COLUMNS, rewards, 0))
+    private val achievementsPanel = JPanel()
+    private val layoutAchievements = GridBagLayout()
+    private val gbcAchievements = GridBagConstraints()
+
+    private var achievementsMap: ArrayList<Achievements> = ArrayList(numOfAchievements)
+    private var iconsMap: ArrayList<JLabel> = ArrayList(numOfAchievements)
+
+    private var wPic: BufferedImage = ImageIO.read(this.javaClass.getResource("/empty.png"))
 
     private companion object {
         const val textSize = 24
@@ -61,6 +72,16 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         const val frameHeight = 350
         const val tableWidth = 400
         const val tableHeight = 300
+        const val numOfAchievements = 6
+        const val achievement1 = 5
+        const val achievement2 = 10
+        const val achievement3 = 15
+        const val achievement4 = 20
+        const val achievement5 = 25
+        const val achievement6 = 50
+        const val achievementTextSize = 14
+        const val dist = 10
+        const val row = 3
 
         object Dialog {
             const val with = 400
@@ -210,6 +231,96 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         toolBar.add(createTable())
     }
 
+    private fun addAchievements() {
+        achievementsMap.add(
+            Achievements(
+                "/green.png",
+                "<html><body style='text-align: center'>5<br/>new Features</html>",
+                achievement1
+            )
+        )
+        achievementsMap.add(
+            Achievements(
+                "/blue.png",
+                "<html><body style='text-align: center'>10<br/>new Features</html>",
+                achievement2
+            )
+        )
+        achievementsMap.add(
+            Achievements(
+                "/violet.png",
+                "<html><body style='text-align: center'>15<br/>new Features</html>",
+                achievement3
+            )
+        )
+        achievementsMap.add(
+            Achievements(
+                "/yellow.png",
+                "<html><body style='text-align: center'>20<br/>new Features</html>",
+                achievement4
+            )
+        )
+        achievementsMap.add(
+            Achievements(
+                "/orange.png",
+                "<html><body style='text-align: center'>25<br/>new Features</html>",
+                achievement5
+            )
+        )
+        achievementsMap.add(
+            Achievements(
+                "/red.png",
+                "<html><body style='text-align: center'>50<br/>new Features</html>",
+                achievement6
+            )
+        )
+    }
+
+    private fun createAchievementsPanel(): JPanel {
+        achievementsPanel.layout = layoutAchievements
+
+        addAchievements()
+        var x = 0
+        var y: Int
+        var coordCounter = 0
+        var diff = 0
+        gbcAchievements.fill = GridBagConstraints.HORIZONTAL
+        for ((iter, elem) in achievementsMap.withIndex()) {
+            val nameLabel = JLabel(elem.name, SwingConstants.CENTER)
+            nameLabel.font = Font("Calibri", Font.PLAIN, achievementTextSize)
+
+            iconsMap.add(JLabel())
+            iconsMap[iter].icon = ImageIcon(wPic)
+            y = diff
+            gbcAchievements.gridx = x
+            gbcAchievements.gridy = y
+            achievementsPanel.add(iconsMap[iter], gbcAchievements)
+            y = (diff + 1)
+            gbcAchievements.gridx = x
+            gbcAchievements.gridy = y
+            achievementsPanel.add(nameLabel, gbcAchievements)
+            coordCounter++
+            x += dist
+            if (coordCounter == row) {
+                x = 0
+                diff += dist
+                coordCounter = 0
+            }
+        }
+
+        setAchievementsState()
+
+        return achievementsPanel
+    }
+
+    private fun setAchievementsState() {
+        for ((iter, elem) in achievementsMap.withIndex()) {
+            if (stats.getRewardInfo().size >= elem.number) {
+                iconsMap[iter].icon = elem.icon
+            }
+        }
+    }
+
     override fun createCenterPanel(): JPanel {
 
         createBox()
@@ -242,6 +353,10 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
 
         clearButton.addActionListener {
             stats.clear()
+            wPic = ImageIO.read(this.javaClass.getResource("/empty.png"))
+            for ((iter, _) in achievementsMap.withIndex()) {
+                iconsMap[iter].icon = ImageIcon(wPic)
+            }
             setClr = color.getColor(stats.getLevel())
             progress1.foreground = setClr
         }
@@ -267,9 +382,11 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         panel.add(toolBar, BorderLayout.PAGE_START)
         panel.add(contentPanel, BorderLayout.CENTER)
 
+        createAchievementsPanel()
+
         splitter.isShowDividerControls = true
         splitter.firstComponent = panel
-//        splitter.secondComponent = tablePanel
+        splitter.secondComponent = achievementsPanel
 
         stats.addListener(
             object : GameEventListener {
@@ -281,11 +398,19 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
                     table.setModelAndUpdateColumns(
                         ListTableModel(COLUMNS, stats.getRewardInfo(), 0)
                     )
+                    setAchievementsState()
                     repaint()
                 }
             },
             disposable
         )
         return splitter
+    }
+
+    private class Achievements(newIcon: String, newName: String, stats: Int) {
+        private val wPic: BufferedImage = ImageIO.read(this.javaClass.getResource(newIcon))
+        var icon = ImageIcon(wPic)
+        val name = newName
+        val number = stats
     }
 }
