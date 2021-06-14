@@ -1,6 +1,6 @@
 package com.intellij.gamify.server.routes
 
-import com.intellij.gamify.server.entities.UserInfo
+import com.intellij.gamify.server.entities.shared.UserInfo
 import com.intellij.gamify.server.repository.GamifyRepository
 import io.ktor.application.Application
 import io.ktor.application.call

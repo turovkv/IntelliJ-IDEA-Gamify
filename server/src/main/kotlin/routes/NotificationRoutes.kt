@@ -1,11 +1,10 @@
 package com.intellij.gamify.server.routes
 
-import com.intellij.gamify.server.entities.Notification
+import com.intellij.gamify.server.entities.shared.Notification
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
-import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.delete
 import io.ktor.routing.get

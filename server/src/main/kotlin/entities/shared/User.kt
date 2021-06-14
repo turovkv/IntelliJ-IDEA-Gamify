@@ -1,4 +1,4 @@
-package com.intellij.gamify.server.entities
+package com.intellij.gamify.server.entities.shared
 
 import kotlinx.serialization.Serializable
 
@@ -14,3 +14,4 @@ data class UserInfo(
     val level: Int = 1,
     val progress: Int = 0,
 )
+

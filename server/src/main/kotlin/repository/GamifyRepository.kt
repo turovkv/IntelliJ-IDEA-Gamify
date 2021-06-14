@@ -1,26 +1,26 @@
 package com.intellij.gamify.server.repository
 
-import com.intellij.gamify.server.entities.Notification
-import com.intellij.gamify.server.entities.User
-import com.intellij.gamify.server.entities.UserHolder
-import com.intellij.gamify.server.entities.UserInfo
-import io.ktor.auth.*
+import com.intellij.gamify.server.entities.shared.Notification
+import com.intellij.gamify.server.entities.shared.User
+import com.intellij.gamify.server.entities.shared.UserInfo
+import io.ktor.auth.UserIdPrincipal
+import io.ktor.auth.UserPasswordCredential
 
 interface GamifyRepository {
-    fun getUserByName(name: String): User
-    fun getAllUsers(): List<User>
+    suspend fun getUserByName(name: String): User
+    suspend fun getAllUsers(): List<User>
 
-    fun createUser(credential: UserPasswordCredential)
-    fun authenticate(credential: UserPasswordCredential): Authorized?
+    suspend fun createUser(credential: UserPasswordCredential)
+    suspend fun authenticate(credential: UserPasswordCredential): Authorized?
 
     interface Authorized : GamifyRepository {
         val userPrincipal: UserIdPrincipal
 
-        fun updateUserInfo(userInfo: UserInfo)
+        suspend fun updateUserInfo(userInfo: UserInfo)
 
-        fun addNotification(notification: Notification)
-        fun subscribe(nameTo: String)
-        fun unsubscribe(nameFrom: String)
-        fun getNotifications(): List<Notification>
+        suspend fun addNotification(notification: Notification)
+        suspend fun subscribe(nameTo: String)
+        suspend fun unsubscribe(nameTo: String)
+        suspend fun getNotifications(): List<Notification>
     }
 }
