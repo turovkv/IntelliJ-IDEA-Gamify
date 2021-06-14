@@ -14,12 +14,12 @@ import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
 import io.ktor.features.StatusPages
-import io.ktor.gson.gson
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
+import io.ktor.serialization.json
 import io.ktor.util.error
 
 private const val ADD_PREDEFINED_USERS = true
@@ -46,9 +46,7 @@ fun Application.module() {
         }
     }
     install(ContentNegotiation) {
-        gson {
-            setPrettyPrinting()
-        }
+        json()
     }
 
     installHashedAuthentication(repository)

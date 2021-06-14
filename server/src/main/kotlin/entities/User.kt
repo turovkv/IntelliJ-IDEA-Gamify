@@ -1,10 +1,14 @@
 package com.intellij.gamify.server.entities
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class User(
     val name: String,
     var userInfo: UserInfo = UserInfo()
 )
 
+@Serializable
 data class UserInfo(
     val displayName: String = "No display name",
     val level: Int = 1,
