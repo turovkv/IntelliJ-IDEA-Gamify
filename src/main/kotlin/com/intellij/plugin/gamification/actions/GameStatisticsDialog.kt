@@ -31,7 +31,6 @@ import javax.imageio.ImageIO
 import javax.swing.Box
 import javax.swing.ImageIcon
 import javax.swing.JButton
-import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JMenuItem
 import javax.swing.JPanel
@@ -53,7 +52,8 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
     private val toolBar = JToolBar()
     private val popupMenu = JPopupMenu()
     var popupShown = false
-    var popupShown1 = false
+    var popupShownTable = false
+    var popupShownInfo = false
     private val rewards = stats.getRewardInfo()
     val table = TableView(ListTableModel(COLUMNS, rewards, 0))
     private val achievementsPanel = JPanel()
@@ -156,25 +156,42 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
     private fun createInfo(): JButton {
         val questionButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/info30.png")))
 
-        questionButton.addActionListener {
-            val f = JFrame()
-            val textArea = JTextArea()
+        val textArea = JTextArea()
 
-            val fileName = GameStatisticsDialog::class.java.getResource("/GameLogic.txt")
-            val text = BufferedReader(InputStreamReader(fileName.openStream()))
-            var line: String?
-            while (text.readLine().also { line = it } != null) {
-                textArea.append(line)
-                textArea.append("\n")
+        val fileName = GameStatisticsDialog::class.java.getResource("/GameLogic.txt")
+        val text = BufferedReader(InputStreamReader(fileName.openStream()))
+        var line: String?
+        while (text.readLine().also { line = it } != null) {
+            textArea.append(line)
+            textArea.append("\n")
+        }
+        text.close()
+
+        textArea.isEditable = false
+
+        val popup = JPopupMenu()
+        val popPanel = JPanel(BorderLayout())
+        popPanel.add(ScrollPaneFactory.createScrollPane(textArea), BorderLayout.CENTER)
+        popup.add(popPanel)
+
+        popup.maximumSize = Dimension(frameWidth, frameHeight)
+        popup.preferredSize = Dimension(frameWidth, frameHeight)
+        popup.minimumSize = Dimension(frameWidth, frameHeight)
+
+        questionButton.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(e: MouseEvent?) {
+                val shown = popupShownInfo
+                SwingUtilities.invokeLater { popupShownInfo = shown }
             }
-            text.close()
+        })
 
-            textArea.isEditable = false
-            f.add(textArea)
-            f.defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
-
-            f.setSize(frameWidth, frameHeight)
-            f.isVisible = true
+        questionButton.addActionListener {
+            if (popupShownInfo) {
+                popup.isVisible = false
+                popupShownInfo = false
+            } else {
+                popup.show(questionButton, 0, questionButton.height)
+            }
         }
 
         questionButton.preferredSize = Dimension(buttonSize, buttonSize)
@@ -208,15 +225,15 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
 
         tableButton.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
-                val shown = popupShown1
-                SwingUtilities.invokeLater { popupShown1 = shown }
+                val shown = popupShownTable
+                SwingUtilities.invokeLater { popupShownTable = shown }
             }
         })
 
         tableButton.addActionListener {
-            if (popupShown1) {
+            if (popupShownTable) {
                 popup.isVisible = false
-                popupShown1 = false
+                popupShownTable = false
             } else {
                 popup.show(tableButton, 0, tableButton.height)
             }
