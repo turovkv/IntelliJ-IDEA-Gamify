@@ -1,5 +1,7 @@
 package com.intellij.gamify.server
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.LoggerContext
 import com.intellij.gamify.server.entities.shared.UserInfo
 import com.intellij.gamify.server.repository.GamifyRepository
 import com.intellij.gamify.server.repository.MongoImplRepository
@@ -22,13 +24,16 @@ import io.ktor.routing.routing
 import io.ktor.serialization.json
 import io.ktor.util.error
 import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 
-private const val ADD_PREDEFINED_USERS = true
+private const val ADD_PREDEFINED_USERS = false
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("Unused")
 fun Application.module() {
+    configureLogging()
+
     val repository: GamifyRepository = MongoImplRepository().apply {
         if (ADD_PREDEFINED_USERS) {
             runBlocking {
@@ -61,6 +66,12 @@ fun Application.module() {
     }
     registerBasicRoutes(repository)
     registerNotificationRoutes()
+}
+
+private fun configureLogging() {
+    val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+    val rootLogger = loggerContext.getLogger("org.mongodb.driver")
+    rootLogger.level = Level.OFF
 }
 
 suspend fun GamifyRepository.addPredefinedUser(name: String, level: Int): GamifyRepository {
