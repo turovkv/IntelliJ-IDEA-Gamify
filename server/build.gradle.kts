@@ -16,6 +16,14 @@ dependencies {
     implementation( "ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-auth:$ktor_version")
     implementation("io.ktor:ktor-gson:$ktor_version")
-
+    implementation("org.litote.kmongo:kmongo-coroutine-serialization:4.2.7")
     //testImplementation( "io.ktor:ktor-server-tests:$ktor_version")
+}
+
+tasks {
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
 }
