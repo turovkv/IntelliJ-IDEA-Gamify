@@ -14,7 +14,6 @@ import org.litote.kmongo.div
 import org.litote.kmongo.eq
 import org.litote.kmongo.gt
 import org.litote.kmongo.setValue
-import java.sql.Timestamp
 
 class MongoImplRepositoryAuthorized(
     credential: UserPasswordCredential,
@@ -87,7 +86,7 @@ class MongoImplRepositoryAuthorized(
         list.sortBy { it.serverTime }
         storage.userHolders.updateOne(
             UserHolder::user / User::name eq currentUserName,
-            setValue(UserHolder::lastWatched, Timestamp(System.currentTimeMillis()))
+            setValue(UserHolder::lastWatched, System.currentTimeMillis())
         )
         return list.map { it.notification }
     }

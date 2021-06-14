@@ -53,6 +53,8 @@ open class MongoImplRepository(protected val storage: Storage = Storage()) : Gam
             ).wasAcknowledged()
         ) {
             throw RepositoryException("Unable to create user ${credential.name}")
+        } else {
+            println("Add ${credential.name}")
         }
     }
 
