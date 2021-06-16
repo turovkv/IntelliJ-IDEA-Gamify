@@ -6,54 +6,64 @@ class Colors {
     private val mapColors: HashMap<Int, Color> = HashMap()
 
     private companion object {
-        const val totalColorsNum = 150
-        const val step = 10
-        const val rgbMax = 255
-        var red = 255
-        var green = 255
-        var blue = 0
+        const val totalColorsNum = 30
         var i = 1
+        const val epsAlpha = 40
+        var epsLevels = 5
+        var lvl = 0
+        const val maxRGB = 255
+        const val minRGB = 0
+        const val rGreen = 40
+        const val bGreen = 99
+        const val rVioletOrange = 161
+        const val gViolet = 25
+        const val gBlueYellow = 215
     }
 
     fun setColors() {
         i = 1
-        while (red > 0) { // 25 yellow -> green
-            mapColors[i] = Color(red, green, blue)
-            red -= step
+        lvl = epsLevels
+        var alpha = epsAlpha
+        while (i <= lvl) { // зеленый
+            mapColors[i] = Color(rGreen, maxRGB, bGreen, alpha)
+            alpha += epsAlpha
             i++
         }
-        red = 0
-        while (blue < rgbMax) { // 25 green -> blue
-            mapColors[i] = Color(red, green, blue)
-            blue += step
+        lvl += epsLevels
+        alpha = epsAlpha
+        while (i <= lvl) { // фиолетовый
+            mapColors[i] = Color(rVioletOrange, gViolet, maxRGB, alpha)
+            alpha += epsAlpha
             i++
         }
-        blue = rgbMax
-        while (green > 0) { // 25 blue -> dark blue
-            mapColors[i] = Color(red, green, blue)
-            green -= step
+        lvl += epsLevels
+        alpha = epsAlpha
+        while (i <= lvl) { // желтый
+            mapColors[i] = Color(maxRGB, gBlueYellow, minRGB, alpha)
+            alpha += epsAlpha
             i++
         }
-        green = 0
-        while (red < rgbMax) { // 25 dark blue -> violet
-            mapColors[i] = Color(red, green, blue)
-            red += step
+        lvl += epsLevels
+        alpha = epsAlpha
+        while (i <= lvl) { // синий
+            mapColors[i] = Color(minRGB, gBlueYellow, maxRGB, alpha)
+            alpha += epsAlpha
             i++
         }
-        red = rgbMax
-        while (blue > 0) { // 25 violet -> red
-            mapColors[i] = Color(red, green, blue)
-            blue -= step
+        lvl += epsLevels
+        alpha = epsAlpha
+        while (i <= lvl) { // красный
+            mapColors[i] = Color(maxRGB, minRGB, minRGB, alpha)
+            alpha += epsAlpha
             i++
         }
-        blue = 0
-        while (green < rgbMax) { // 25 red -> yellow
-            mapColors[i] = Color(red, green, blue)
-            green += step
+        lvl += epsLevels
+        alpha = epsAlpha
+        while (i <= lvl) { // оранжевый
+            mapColors[i] = Color(maxRGB, rVioletOrange, minRGB, alpha)
+            alpha += epsAlpha
             i++
         }
-        green = rgbMax
-        i = 1
     }
 
     fun getColor(level: Int): Color? {
