@@ -43,10 +43,12 @@ import javax.swing.SwingConstants
 import javax.swing.SwingUtilities
 import kotlin.Comparator
 
-class GameStatisticsDialog(project: Project?, listener: ActionListener?) : DialogWrapper(project, true) {
+class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
+    DialogWrapper(project, true) {
 
+    val logStatus = false
     val splitter = Splitter(true)
-    private val list = listener
+    private val list2 = fstListner
     val stats = RewardStatisticsService.getInstance()
     private val color = Colors()
     private val toolBar = JToolBar()
@@ -350,6 +352,7 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         statsInfo.font = Font("Calibri", Font.PLAIN, textSize)
         val clearButton = JMenuItem("Clear Stats")
         val logOutButton = JMenuItem("Log Out")
+        val logInButton = JMenuItem("Log In")
 
         val progress1: JProgressBar = object : JProgressBar() {
             override fun updateUI() {
@@ -378,7 +381,8 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
             progress1.foreground = setClr
         }
 
-        logOutButton.addActionListener(list)
+        logOutButton.addActionListener(list2)
+        logInButton.addActionListener(list2)
 
         val contentPanel = JPanel()
         val layout = GridBagLayout()
@@ -393,7 +397,9 @@ class GameStatisticsDialog(project: Project?, listener: ActionListener?) : Dialo
         gbc.gridy = 1
         contentPanel.add(statsInfo, gbc)
         popupMenu.add(clearButton)
-        popupMenu.add(logOutButton)
+
+        if (!logStatus) popupMenu.add(logInButton)
+        else popupMenu.add(logOutButton)
 
         val panel = JPanel(BorderLayout())
         panel.add(toolBar, BorderLayout.PAGE_START)
