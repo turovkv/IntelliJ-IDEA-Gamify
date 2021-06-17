@@ -230,6 +230,7 @@ class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
         toolBar.add(createSettings())
         toolBar.add(createInfo())
         toolBar.add(createTable())
+        toolBar.isFloatable = false
     }
 
     override fun createCenterPanel(): JPanel {
