@@ -1,9 +1,13 @@
 package com.intellij.plugin.gamification.toolWindow
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.Splitter
+import com.intellij.plugin.gamification.services.network.ClientException
+import com.intellij.plugin.gamification.services.network.NetworkService
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.table.TableView
+import kotlinx.coroutines.runBlocking
 import java.awt.BorderLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -33,6 +37,17 @@ class SubscribePanel {
 
         btnLogin.addActionListener {
             println("Try to find user: " + tfUsername.text)
+            try {
+                runBlocking {
+                    NetworkService.getInstance().subscribe(tfUsername.text)
+                }
+            } catch (e: ClientException) {
+                Logger
+                    .getFactory()
+                    .getLoggerInstance("Gamify")
+                    .error(e)
+                println(e.localizedMessage)
+            }
         }
 
         gbc.fill = GridBagConstraints.HORIZONTAL

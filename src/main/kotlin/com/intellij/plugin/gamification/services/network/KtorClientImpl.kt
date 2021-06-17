@@ -16,6 +16,7 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -23,10 +24,11 @@ import io.ktor.http.contentType
 @Suppress("TooManyFunctions")
 class KtorClientImpl : Client, Disposable {
     companion object {
-        private const val url = "http://0.0.0.0:8080"
+        private const val url = "http://0.0.0.0:8081"
         private const val requestTimeoutMillisConst: Long = 1000
         private const val connectTimeoutMillisConst: Long = 1000
     }
+
     private val httpClient = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = GsonSerializer()
@@ -64,19 +66,19 @@ class KtorClientImpl : Client, Disposable {
     }
 
     override fun signIn(newName: String, newPassword: String) { // maybe should check on server
-        val auth = httpClient.feature(Auth)
-        if (auth != null) {
+        val auth = httpClient.feature(Auth) ?: throw ClientException("Auth not installed")
+        if (auth.providers.isNotEmpty()) {
             auth.providers.removeAt(0)
-            auth.basic {
-                username = newName
-                password = newPassword
-            }
+        }
+        auth.basic {
+            username = newName
+            password = newPassword
         }
     }
 
     override suspend fun updateUserInfo(userInfo: UserInfo): Unit =
         requestHandler("updateUserInfo", true) {
-            httpClient.get("$url/users/update") {
+            httpClient.put("$url/users/with-auth/update") {
                 contentType(ContentType.Application.Json)
                 body = userInfo
             }
@@ -84,12 +86,12 @@ class KtorClientImpl : Client, Disposable {
 
     override suspend fun getNotifications(): List<Notification> =
         requestHandler("getNotifications", true) {
-            httpClient.get("$url/users/notifications")
+            httpClient.get("$url/users/with-auth/notifications")
         }
 
     override suspend fun addNotification(notification: Notification): Unit =
         requestHandler("addNotification", true) {
-            httpClient.post("$url/users/notifications") {
+            httpClient.post("$url/users/with-auth/notifications") {
                 contentType(ContentType.Application.Json)
                 body = notification
             }
@@ -97,12 +99,12 @@ class KtorClientImpl : Client, Disposable {
 
     override suspend fun subscribe(nameTo: String): Unit =
         requestHandler("subscribe", true) {
-            httpClient.post("$url/users/subscribing/$nameTo")
+            httpClient.post("$url/users/with-auth/subscribing/$nameTo")
         }
 
     override suspend fun unsubscribe(nameFrom: String): Unit =
         requestHandler("subscribe", true) {
-            httpClient.delete("$url/users/subscribing/$nameFrom")
+            httpClient.delete("$url/users/with-auth/subscribing/$nameFrom")
         }
 
     private suspend fun <T> requestHandler(
@@ -122,11 +124,14 @@ class KtorClientImpl : Client, Disposable {
         } catch (e: ResponseException) {
             val errorMessage: String = e.response.readText()
             if (errorMessage.isNotEmpty()) {
-                throw ClientException("Failed to $requestName ($errorMessage)")
+                throw ClientException("Failed to $requestName ($errorMessage)", e)
             } else {
                 throw ClientException("Failed to $requestName (response status is not OK)", e)
             }
-        }
+        } /*catch (e: Exception) {
+            throw ClientException("Failed to $requestName (internal error)", e)
+
+        }*/
     }
 
     override fun dispose() {
