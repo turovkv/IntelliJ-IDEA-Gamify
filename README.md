@@ -40,5 +40,5 @@
    ```
 
 <!-- Plugin description -->
-
+Plugin for geoimification of the process of learning IntelliJ IDEA features
 <!-- Plugin description end -->
