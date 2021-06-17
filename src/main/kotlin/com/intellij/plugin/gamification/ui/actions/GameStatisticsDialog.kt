@@ -1,14 +1,14 @@
-package com.intellij.plugin.gamification.actions
+package com.intellij.plugin.gamification.ui.actions
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Splitter
-import com.intellij.plugin.gamification.constants.Colors
+import com.intellij.plugin.gamification.ui.constants.Colors
 import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.services.RewardInfoItem
 import com.intellij.plugin.gamification.services.RewardStatisticsService
-import com.intellij.plugin.gamification.toolWindow.AchievementsPanel
+import com.intellij.plugin.gamification.ui.toolWindow.AchievementsPanel
 import com.intellij.plugin.gamification.ui.ProgressCircleUI
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.ScrollingUtil
@@ -108,11 +108,11 @@ class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
     }
 
     override fun getDimensionServiceKey(): String {
-        return "#com.intellij.plugin.gamification.actions.GameStatisticsDialog"
+        return "#com.intellij.plugin.gamification.ui.actions.GameStatisticsDialog"
     }
 
     private fun createSettings(): JButton {
-        val stnButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/gear30.png")))
+        val stnButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/icons/gear30.png")))
 
         stnButton.preferredSize = Dimension(buttonSize, buttonSize)
 
@@ -138,11 +138,11 @@ class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
     }
 
     private fun createInfo(): JButton {
-        val questionButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/info30.png")))
+        val questionButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/icons/info30.png")))
 
         val textArea = JTextArea()
 
-        val fileName = GameStatisticsDialog::class.java.getResource("/GameLogic.txt")
+        val fileName = GameStatisticsDialog::class.java.getResource("/infos/GameLogic.txt")
         val text = BufferedReader(InputStreamReader(fileName.openStream()))
         var line: String?
         while (text.readLine().also { line = it } != null) {
@@ -200,7 +200,7 @@ class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
         popup.preferredSize = Dimension(tableWidth, tableHeight)
         popup.minimumSize = Dimension(tableWidth, tableHeight)
 
-        val tableButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/activity30.png")))
+        val tableButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/icons/activity30.png")))
         tableButton.preferredSize = Dimension(buttonSize, buttonSize)
 
         tableButton.isBorderPainted = false

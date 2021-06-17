@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification.toolWindow
+package com.intellij.plugin.gamification.ui.toolWindow
 
 import com.intellij.plugin.gamification.services.RewardStatisticsService
 import java.awt.Font
@@ -19,7 +19,7 @@ class AchievementsPanel(stats: RewardStatisticsService) {
     private val gbcAchievements = GridBagConstraints()
     private var achievementsMap: ArrayList<Achievements> = ArrayList(numOfAchievements)
     private var iconsMap: ArrayList<JLabel> = ArrayList(numOfAchievements)
-    private var wPic: BufferedImage = ImageIO.read(this.javaClass.getResource("/empty.png"))
+    private var wPic: BufferedImage = ImageIO.read(this.javaClass.getResource("/icons/empty.png"))
 
     private companion object {
         const val numOfAchievements = 6
@@ -37,42 +37,42 @@ class AchievementsPanel(stats: RewardStatisticsService) {
     private fun addAchievements() {
         achievementsMap.add(
             Achievements(
-                "/green.png",
+                "/icons/green.png",
                 "<html><body style='text-align: center'>5<br/>new Features</html>",
                 achievement1
             )
         )
         achievementsMap.add(
             Achievements(
-                "/blue.png",
+                "/icons/blue.png",
                 "<html><body style='text-align: center'>10<br/>new Features</html>",
                 achievement2
             )
         )
         achievementsMap.add(
             Achievements(
-                "/violet.png",
+                "/icons/violet.png",
                 "<html><body style='text-align: center'>15<br/>new Features</html>",
                 achievement3
             )
         )
         achievementsMap.add(
             Achievements(
-                "/yellow.png",
+                "/icons/yellow.png",
                 "<html><body style='text-align: center'>20<br/>new Features</html>",
                 achievement4
             )
         )
         achievementsMap.add(
             Achievements(
-                "/orange.png",
+                "/icons/orange.png",
                 "<html><body style='text-align: center'>25<br/>new Features</html>",
                 achievement5
             )
         )
         achievementsMap.add(
             Achievements(
-                "/red.png",
+                "/icons/red.png",
                 "<html><body style='text-align: center'>50<br/>new Features</html>",
                 achievement6
             )
@@ -125,7 +125,7 @@ class AchievementsPanel(stats: RewardStatisticsService) {
     }
 
     fun clearAchievements() {
-        wPic = ImageIO.read(this.javaClass.getResource("/empty.png"))
+        wPic = ImageIO.read(this.javaClass.getResource("/icons/empty.png"))
         for ((iter, _) in achievementsMap.withIndex()) {
             iconsMap[iter].icon = ImageIcon(wPic)
         }

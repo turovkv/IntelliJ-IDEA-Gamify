@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification.toolWindow
+package com.intellij.plugin.gamification.ui.toolWindow
 
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project

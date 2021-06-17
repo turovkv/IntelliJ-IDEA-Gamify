@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification.constants
+package com.intellij.plugin.gamification.ui.constants
 
 import java.awt.Color
 

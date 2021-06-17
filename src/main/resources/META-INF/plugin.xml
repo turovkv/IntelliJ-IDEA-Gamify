@@ -9,11 +9,11 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Feature Statistics" anchor="right"
-                    factoryClass="com.intellij.plugin.gamification.toolWindow.GameToolWindow"/>
+                    factoryClass="com.intellij.plugin.gamification.ui.toolWindow.GameToolWindow"/>
         <applicationService serviceImplementation="com.intellij.plugin.gamification.services.RewardStatisticsService"/>
         <applicationService serviceImplementation="com.intellij.plugin.gamification.services.network.NetworkService"/>
         <statusBarWidgetFactory id="gameProgressWidget"
-                                implementation="com.intellij.plugin.gamification.widget.GameProgressWidgetFactory"
+                                implementation="com.intellij.plugin.gamification.ui.widget.GameProgressWidgetFactory"
                                 order="last"/>
     </extensions>
 

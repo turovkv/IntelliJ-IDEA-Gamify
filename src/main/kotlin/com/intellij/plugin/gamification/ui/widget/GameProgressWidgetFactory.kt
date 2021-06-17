@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification.widget
+package com.intellij.plugin.gamification.ui.widget
 
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project

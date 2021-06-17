@@ -1,11 +1,11 @@
-package com.intellij.plugin.gamification.widget
+package com.intellij.plugin.gamification.ui.widget
 
 import com.intellij.openapi.wm.CustomStatusBarWidget
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import com.intellij.openapi.wm.impl.status.IdeStatusBarImpl
 import com.intellij.openapi.wm.impl.status.TextPanel
-import com.intellij.plugin.gamification.constants.Colors
+import com.intellij.plugin.gamification.ui.constants.Colors
 import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl

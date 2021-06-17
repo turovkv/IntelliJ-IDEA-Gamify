@@ -1,7 +1,7 @@
-package com.intellij.plugin.gamification.toolWindow
+package com.intellij.plugin.gamification.ui.toolWindow
 
 import com.intellij.openapi.project.Project
-import com.intellij.plugin.gamification.actions.GameStatisticsDialog
+import com.intellij.plugin.gamification.ui.actions.GameStatisticsDialog
 import java.awt.CardLayout
 import java.awt.event.ActionListener
 import javax.swing.JPanel

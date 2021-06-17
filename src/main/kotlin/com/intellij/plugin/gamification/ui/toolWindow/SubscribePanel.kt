@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification.toolWindow
+package com.intellij.plugin.gamification.ui.toolWindow
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.Splitter
