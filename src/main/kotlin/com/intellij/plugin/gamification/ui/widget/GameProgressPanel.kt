@@ -5,11 +5,11 @@ import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import com.intellij.openapi.wm.impl.status.IdeStatusBarImpl
 import com.intellij.openapi.wm.impl.status.TextPanel
-import com.intellij.plugin.gamification.ui.constants.Colors
 import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
 import com.intellij.plugin.gamification.services.RewardStatisticsService
+import com.intellij.plugin.gamification.ui.constants.Colors
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import java.awt.Color

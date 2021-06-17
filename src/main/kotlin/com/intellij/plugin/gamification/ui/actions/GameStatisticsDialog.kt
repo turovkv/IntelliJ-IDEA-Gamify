@@ -3,13 +3,13 @@ package com.intellij.plugin.gamification.ui.actions
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Splitter
-import com.intellij.plugin.gamification.ui.constants.Colors
 import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.services.RewardInfoItem
 import com.intellij.plugin.gamification.services.RewardStatisticsService
-import com.intellij.plugin.gamification.ui.toolWindow.AchievementsPanel
 import com.intellij.plugin.gamification.ui.ProgressCircleUI
+import com.intellij.plugin.gamification.ui.constants.Colors
+import com.intellij.plugin.gamification.ui.toolWindow.AchievementsPanel
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.table.TableView
@@ -39,7 +39,6 @@ import javax.swing.JToolBar
 import javax.swing.ListSelectionModel
 import javax.swing.SwingConstants
 import javax.swing.SwingUtilities
-import kotlin.Comparator
 
 class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
     DialogWrapper(project, true) {
