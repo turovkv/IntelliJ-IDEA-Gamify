@@ -60,11 +60,13 @@ class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
 
     private companion object {
         const val textSize = 24
-        const val buttonSize = 37
+        const val buttonSize = 24
         const val frameWidth = 750
         const val frameHeight = 350
         const val tableWidth = 400
         const val tableHeight = 300
+        const val popupMenuWidth = 110
+        const val popupMenuHeight = 40
 
         object Dialog {
             const val with = 400
@@ -111,7 +113,7 @@ class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
     }
 
     private fun createSettings(): JButton {
-        val stnButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/icons/gear30.png")))
+        val stnButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/icons/Settings.png")))
 
         stnButton.preferredSize = Dimension(buttonSize, buttonSize)
 
@@ -137,7 +139,7 @@ class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
     }
 
     private fun createInfo(): JButton {
-        val questionButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/icons/info30.png")))
+        val questionButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/icons/Info.png")))
 
         val textArea = JTextArea()
 
@@ -199,7 +201,7 @@ class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
         popup.preferredSize = Dimension(tableWidth, tableHeight)
         popup.minimumSize = Dimension(tableWidth, tableHeight)
 
-        val tableButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/icons/activity30.png")))
+        val tableButton = JButton(ImageIcon(GameStatisticsDialog::class.java.getResource("/icons/Activity.png")))
         tableButton.preferredSize = Dimension(buttonSize, buttonSize)
 
         tableButton.isBorderPainted = false
@@ -286,6 +288,10 @@ class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
         gbc.gridy = 1
         contentPanel.add(statsInfo, gbc)
         popupMenu.add(clearButton)
+
+        popupMenu.preferredSize = Dimension(popupMenuWidth, popupMenuHeight)
+        popupMenu.maximumSize = Dimension(popupMenuWidth, popupMenuHeight)
+        popupMenu.minimumSize = Dimension(popupMenuWidth, popupMenuHeight)
 
         if (!logStatus) popupMenu.add(logInButton)
         else popupMenu.add(logOutButton)
