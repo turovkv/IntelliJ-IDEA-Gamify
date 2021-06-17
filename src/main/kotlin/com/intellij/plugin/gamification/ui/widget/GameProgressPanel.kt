@@ -1,4 +1,4 @@
-package com.intellij.plugin.gamification.widget
+package com.intellij.plugin.gamification.ui.widget
 
 import com.intellij.openapi.wm.CustomStatusBarWidget
 import com.intellij.openapi.wm.StatusBar
@@ -9,6 +9,7 @@ import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.mechanics.GameMechanicsImpl
 import com.intellij.plugin.gamification.services.RewardStatisticsService
+import com.intellij.plugin.gamification.ui.constants.Colors
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import java.awt.Color
@@ -20,6 +21,12 @@ class GameProgressPanel : TextPanel(), CustomStatusBarWidget {
     private var myStatusBar: StatusBar? = null
     private var progress: Int = 0
     private var level: Int = 0
+    private var myColors = Colors()
+
+    companion object {
+        const val WIDGET_ID = "Gamify"
+        private var color = Color(164, 71, 255, 200)
+    }
 
     override fun getBackground(): Color? {
         return null
@@ -57,7 +64,7 @@ class GameProgressPanel : TextPanel(), CustomStatusBarWidget {
         g.color = UIUtil.getPanelBackground()
         g.fillRect(0, 0, barWidth, size.height - 1)
 
-        g.color = PROGRESS_COLOR
+        g.color = color
         g.fillRect(0, 0, progressBarLength, size.height - 1)
 
         text = "Level: $level"
@@ -69,16 +76,13 @@ class GameProgressPanel : TextPanel(), CustomStatusBarWidget {
         progress = event.progress
         level = event.level
 
+        myColors.setColors()
+        color = myColors.getColor(level)!!
+
         if (!isShowing) {
             return
         }
         repaint()
-    }
-
-    companion object {
-        const val WIDTH = 100
-        const val WIDGET_ID = "Gamify"
-        private val PROGRESS_COLOR = Color(77, 130, 61, 128)
     }
 
     init {

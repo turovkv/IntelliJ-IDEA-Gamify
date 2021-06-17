@@ -1,0 +1,17 @@
+● What is a feature?
+- IntelliJ IDEA analyzes your code, looking for connections between symbols across
+  all project files and languages.Using this information it provides indepth
+  coding assistance, quick navigation, clever error analysis, and, of course, refactorings.
+
+▶ For more information about features and how to use them, see the "Help > Productivity Guide"
+
+● How to collect points and increase your statistics?
+- Exploring features of IDE
+- Reinforce your knowledge by reusing the feature
+
+● Scoring logic:
+- 100 points are added for the first use of a feature
+- Further points are added only for the next 3 uses 60, 30 and 10 points, respectively
+
+● Levels:
+- In order to move to the next level, you need to score 400 points

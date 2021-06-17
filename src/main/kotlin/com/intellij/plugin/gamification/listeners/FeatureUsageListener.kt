@@ -4,10 +4,15 @@ import com.intellij.ide.AppLifecycleListener
 import com.intellij.internal.statistic.eventLog.EventLogNotificationService
 import com.intellij.internal.statistic.eventLog.LogEvent
 import com.intellij.plugin.gamification.services.RewardStatisticsService
+import com.intellij.plugin.gamification.services.network.NetworkService
 
 internal class FeatureUsageListener : AppLifecycleListener {
     override fun appStarted() {
         EventLogNotificationService.subscribe(::subscriber, "FUS")
+
+        NetworkService
+            .getInstance()
+            .launchNotificationReceiver()
     }
 
     private fun subscriber(logEvent: LogEvent) {
