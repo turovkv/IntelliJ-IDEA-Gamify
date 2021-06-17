@@ -1,7 +1,7 @@
 package com.intellij.plugin.gamification.ui.windows
 
-import javax.swing.JOptionPane
 import javax.swing.JFrame
+import javax.swing.JOptionPane
 
 class NotificationWarningWindow(warnName: String, warnText: String) {
     var frame = JFrame("WarningDialog")
