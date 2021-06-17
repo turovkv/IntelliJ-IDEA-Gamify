@@ -8,7 +8,8 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Game" anchor="right" factoryClass="com.intellij.plugin.gamification.toolWindow.GameToolWindow"/>
+        <toolWindow id="Feature Statistics" anchor="right"
+                    factoryClass="com.intellij.plugin.gamification.toolWindow.GameToolWindow"/>
         <applicationService serviceImplementation="com.intellij.plugin.gamification.services.RewardStatisticsService"/>
         <applicationService serviceImplementation="com.intellij.plugin.gamification.services.network.NetworkService"/>
         <statusBarWidgetFactory id="gameProgressWidget"

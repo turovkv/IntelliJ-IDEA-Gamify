@@ -17,21 +17,21 @@ class MainFrame(project: Project) {
         val firstPage: JPanel = SignInPanel {
             cardLayout!!.show(
                 panel,
-                "SECOND"
+                "FIRST"
             )
         }.signPanel
 
-        panel.add(firstPage, "FIRST")
-
-        val sndListener = ActionListener {
+        val fstListener = ActionListener {
             cardLayout!!.show(
                 panel,
-                "FIRST"
+                "SECOND"
             )
         }
-        val secondPage: JPanel = GameStatisticsDialog(project, sndListener).splitter
 
-        panel.add(secondPage, "SECOND")
+        val secondPage: JPanel = GameStatisticsDialog(project, fstListener).splitter
+
+        panel.add(secondPage, "FIRST")
+        panel.add(firstPage, "SECOND")
 
         cardLayout!!.first(panel)
     }

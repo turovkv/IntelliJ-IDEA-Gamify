@@ -32,7 +32,7 @@ class GameProgressWidgetFactory : StatusBarWidgetFactory, DumbAware {
         object : ClickListener() {
             override fun onClick(event: MouseEvent, clickCount: Int): Boolean {
                 val toolWindowManager = ToolWindowManager.getInstance(project)
-                val toolWindow = toolWindowManager.getToolWindow("Game")
+                val toolWindow = toolWindowManager.getToolWindow("Feature Statistics")
                 toolWindow?.activate(null)
                 return true
             }
