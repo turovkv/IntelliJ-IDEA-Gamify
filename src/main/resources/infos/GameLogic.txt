@@ -1,6 +1,6 @@
 ● What is a feature?
 - IntelliJ IDEA analyzes your code, looking for connections between symbols across
-  all project files and languages.Using this information it provides indepth
+  all project files and languages. Using this information it provides indepth
   coding assistance, quick navigation, clever error analysis, and, of course, refactorings.
 
 ▶ For more information about features and how to use them, see the "Help > Productivity Guide"
@@ -15,3 +15,6 @@
 
 ● Levels:
 - In order to move to the next level, you need to score 400 points
+
+● Achievements:
+- To obtain the achievement, you need to study 5, 10, 15, 20, 25, 50 new possibilities of the IDEA, respectively.

@@ -16,14 +16,47 @@ import java.awt.BorderLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.net.ConnectException
-import javax.swing.*
+import javax.swing.JButton
+import javax.swing.JLabel
+import javax.swing.JPanel
+import javax.swing.JTextField
+import javax.swing.ListSelectionModel
 
 class SubscribePanel {
     val splitter = Splitter(true)
     val subPanel = JPanel()
 
-    companion object {
-        private const val fieldSize = 20
+    private companion object {
+        const val fieldSize = 20
+
+        val DISPLAY_NAME: ColumnInfo<User, String> = object :
+            ColumnInfo<User, String>("Display Name") {
+            override fun valueOf(item: User?): String {
+                return item?.userInfo?.displayName.toString()
+            }
+        }
+
+        val NAME: ColumnInfo<User, String> = object :
+            ColumnInfo<User, String>("Name") {
+            override fun valueOf(item: User?): String {
+                return item?.name.toString()
+            }
+        }
+
+        val POINTS: ColumnInfo<User, String> = object :
+            ColumnInfo<User, String>("Points") {
+            override fun valueOf(item: User?): String {
+                return item?.userInfo?.progress.toString()
+            }
+        }
+        val LEVEL: ColumnInfo<User, String> = object :
+            ColumnInfo<User, String>("Level") {
+            override fun valueOf(item: User?): String {
+                return item?.userInfo?.level.toString()
+            }
+        }
+
+        val COLUMNS = arrayOf<ColumnInfo<*, *>>(NAME, DISPLAY_NAME, POINTS, LEVEL)
     }
 
     init {
@@ -76,36 +109,15 @@ class SubscribePanel {
 
             tablePanel = JPanel(BorderLayout())
 
-            val DISPLAY_NAME: ColumnInfo<User, String> = object :
-                ColumnInfo<User, String>("Name") {
-                override fun valueOf(item: User?): String {
-                    return item?.userInfo?.displayName.toString()
-                }
-            }
-
-            val POINTS: ColumnInfo<User, String> = object :
-                ColumnInfo<User, String>("Points") {
-                override fun valueOf(item: User?): String {
-                    return item?.userInfo?.progress.toString()
-                }
-            }
-            val LEVEL: ColumnInfo<User, String> = object :
-                ColumnInfo<User, String>("Level") {
-                override fun valueOf(item: User?): String {
-                    return item?.userInfo?.level.toString()
-                }
-            }
-
-            val COLUMNS = arrayOf<ColumnInfo<*, *>>(DISPLAY_NAME, POINTS, LEVEL)
-
             table = TableView(ListTableModel(COLUMNS, users, 0))
             table.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
 
             tablePanel.add(ScrollPaneFactory.createScrollPane(table), BorderLayout.CENTER)
-
         } catch (e: ClientException) {
+            println(e.localizedMessage)
             tablePanel.add(JLabel("Can't see the table. No connection."))
         } catch (e: ConnectException) {
+            println(e.localizedMessage)
             tablePanel.add(JLabel("Can't see the table. No connection."))
         }
 

@@ -17,7 +17,6 @@ import com.intellij.ui.table.TableView
 import com.intellij.util.ui.ColumnInfo
 import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.ListTableModel
-import io.ktor.util.network.*
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Font
