@@ -49,6 +49,7 @@ class SignInPanel(private val f: () -> Unit) {
         constraints.anchor = GridBagConstraints.CENTER
 
         val btnLogin = JButton("Log In")
+        val btnSignUp = JButton("Sign Up")
 
         btnLogin.addActionListener {
             try {
@@ -64,6 +65,27 @@ class SignInPanel(private val f: () -> Unit) {
                 println(e.localizedMessage)
             }
         }
+
+        btnSignUp.addActionListener {
+            try {
+                runBlocking {
+                    NetworkService.getInstance().signUp(txt.text, pswd.password.toString())
+                }
+                f()
+            } catch (e: ClientException) {
+                Logger
+                    .getFactory()
+                    .getLoggerInstance("Gamify")
+                    .error(e)
+                println(e.localizedMessage)
+            }
+        }
         signPanel.add(btnLogin, constraints)
+
+        constraints.gridx = 0
+        constraints.gridy = 2
+        constraints.gridwidth = 1
+        constraints.anchor = GridBagConstraints.CENTER
+        signPanel.add(btnSignUp, constraints)
     }
 }

@@ -7,6 +7,7 @@ import com.intellij.plugin.gamification.listeners.GameEvent
 import com.intellij.plugin.gamification.listeners.GameEventListener
 import com.intellij.plugin.gamification.services.RewardInfoItem
 import com.intellij.plugin.gamification.services.RewardStatisticsService
+import com.intellij.plugin.gamification.services.network.NetworkService
 import com.intellij.plugin.gamification.ui.ProgressCircleUI
 import com.intellij.plugin.gamification.ui.constants.Colors
 import com.intellij.plugin.gamification.ui.toolWindow.AchievementsPanel
@@ -16,6 +17,7 @@ import com.intellij.ui.table.TableView
 import com.intellij.util.ui.ColumnInfo
 import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.ListTableModel
+import io.ktor.util.network.*
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Font
@@ -46,7 +48,8 @@ class GameStatisticsDialog(project: Project?, fstListner: ActionListener?) :
     val stats = RewardStatisticsService.getInstance()
     val achPanel = AchievementsPanel(stats)
 
-    val logStatus = false
+    val network = NetworkService.getInstance()
+    val logStatus = network.isSignedIn()
     val splitter = Splitter(true)
     private val list2 = fstListner
     private val color = Colors()

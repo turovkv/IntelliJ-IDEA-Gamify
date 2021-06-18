@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.Splitter
 import com.intellij.plugin.gamification.services.network.ClientException
 import com.intellij.plugin.gamification.services.network.NetworkService
 import com.intellij.plugin.gamification.services.network.User
+import com.intellij.plugin.gamification.ui.windows.NotificationWarningWindow
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.table.TableView
@@ -14,11 +15,8 @@ import kotlinx.coroutines.runBlocking
 import java.awt.BorderLayout
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
-import javax.swing.JButton
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JTextField
-import javax.swing.ListSelectionModel
+import java.net.ConnectException
+import javax.swing.*
 
 class SubscribePanel {
     val splitter = Splitter(true)
@@ -50,6 +48,10 @@ class SubscribePanel {
                     .getLoggerInstance("Gamify")
                     .error(e)
                 println(e.localizedMessage)
+                NotificationWarningWindow(
+                    "",
+                    "You cannot subscribe to an account until you are logged in."
+                ).showWarning()
             }
         }
 
@@ -64,35 +66,49 @@ class SubscribePanel {
         gbc.gridy = 1
         subPanel.add(btnLogin, gbc)
 
-        val network = NetworkService.getInstance()
-        val users = runBlocking { network.getAllUsers() }
-
-        val DISPLAY_NAME: ColumnInfo<User, String> = object :
-            ColumnInfo<User, String>("Name") {
-            override fun valueOf(item: User?): String {
-                return item?.userInfo?.displayName.toString()
+        var table = TableView<Any>()
+        var tablePanel = JPanel()
+        try {
+            val network = NetworkService.getInstance()
+            val users = runBlocking {
+                network.getAllUsers()
             }
+
+            tablePanel = JPanel(BorderLayout())
+
+            val DISPLAY_NAME: ColumnInfo<User, String> = object :
+                ColumnInfo<User, String>("Name") {
+                override fun valueOf(item: User?): String {
+                    return item?.userInfo?.displayName.toString()
+                }
+            }
+
+            val POINTS: ColumnInfo<User, String> = object :
+                ColumnInfo<User, String>("Points") {
+                override fun valueOf(item: User?): String {
+                    return item?.userInfo?.progress.toString()
+                }
+            }
+            val LEVEL: ColumnInfo<User, String> = object :
+                ColumnInfo<User, String>("Level") {
+                override fun valueOf(item: User?): String {
+                    return item?.userInfo?.level.toString()
+                }
+            }
+
+            val COLUMNS = arrayOf<ColumnInfo<*, *>>(DISPLAY_NAME, POINTS, LEVEL)
+
+            table = TableView(ListTableModel(COLUMNS, users, 0))
+            table.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
+
+            tablePanel.add(ScrollPaneFactory.createScrollPane(table), BorderLayout.CENTER)
+
+        } catch (e: ClientException) {
+            tablePanel.add(JLabel("Can't see the table. No connection."))
+        } catch (e: ConnectException) {
+            tablePanel.add(JLabel("Can't see the table. No connection."))
         }
 
-        val POINTS: ColumnInfo<User, String> = object :
-            ColumnInfo<User, String>("Points") {
-            override fun valueOf(item: User?): String {
-                return item?.userInfo?.progress.toString()
-            }
-        }
-        val LEVEL: ColumnInfo<User, String> = object :
-            ColumnInfo<User, String>("LVEL") {
-            override fun valueOf(item: User?): String {
-                return item?.userInfo?.level.toString()
-            }
-        }
-
-        val COLUMNS = arrayOf<ColumnInfo<*, *>>(DISPLAY_NAME, POINTS, LEVEL)
-
-        val table = TableView(ListTableModel(COLUMNS, users, 0))
-        table.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
-        val tablePanel = JPanel(BorderLayout())
-        tablePanel.add(ScrollPaneFactory.createScrollPane(table), BorderLayout.CENTER)
         ScrollingUtil.ensureSelectionExists(table)
 
         splitter.isShowDividerControls = true
