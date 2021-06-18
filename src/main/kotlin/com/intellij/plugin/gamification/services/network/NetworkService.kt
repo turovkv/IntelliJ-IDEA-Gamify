@@ -82,6 +82,16 @@ class NetworkService : PersistentStateComponent<NetworkService.ClientState>, Dis
         state.isSignedIn = true
     }
 
+    fun signIn(name: String, password: String) {
+        client.signIn(name, password)
+        state.user = User(name, state.user.userInfo)
+        state.isSignedIn = true
+    }
+
+    fun signOut() {
+        state.isSignedIn = false
+    }
+
     suspend fun updateUserInfo(userInfo: UserInfo) {
         client.updateUserInfo(userInfo)
         state.user.userInfo = userInfo
