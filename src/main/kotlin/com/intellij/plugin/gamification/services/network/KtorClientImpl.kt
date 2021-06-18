@@ -25,8 +25,8 @@ import io.ktor.http.contentType
 class KtorClientImpl : Client, Disposable {
     companion object {
         private const val url = "http://0.0.0.0:8081"
-        private const val requestTimeoutMillisConst: Long = 1000
-        private const val connectTimeoutMillisConst: Long = 1000
+        private const val requestTimeoutMillisConst: Long = 4000
+        private const val connectTimeoutMillisConst: Long = 4000
     }
 
     private val httpClient = HttpClient(CIO) {
