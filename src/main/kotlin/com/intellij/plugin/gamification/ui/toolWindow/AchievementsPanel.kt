@@ -18,7 +18,6 @@ class AchievementsPanel(stats: RewardStatisticsService) {
     private val gbcAchievements = GridBagConstraints()
     private var achievementsMap: ArrayList<Achievements> = ArrayList(numOfAchievements)
     private var iconsMap: ArrayList<JLabel> = ArrayList(numOfAchievements)
-    private var wPic: BufferedImage = ImageIO.read(this.javaClass.getResource("/icons/empty.png"))
 
     private companion object {
         const val numOfAchievements = 6
@@ -37,43 +36,49 @@ class AchievementsPanel(stats: RewardStatisticsService) {
         achievementsMap.add(
             Achievements(
                 "/icons/green.png",
-                "<html><body style='text-align: center'>5<br/>new Features</html>",
-                achievement1
+                "",
+                achievement1,
+                "/icons/contract.png"
             )
         )
         achievementsMap.add(
             Achievements(
                 "/icons/blue.png",
-                "<html><body style='text-align: center'>10<br/>new Features</html>",
-                achievement2
+                "",
+                achievement2,
+                "/icons/diploma.png"
             )
         )
         achievementsMap.add(
             Achievements(
                 "/icons/violet.png",
-                "<html><body style='text-align: center'>15<br/>new Features</html>",
-                achievement3
+                "",
+                achievement3,
+                "/icons/star.png"
             )
         )
         achievementsMap.add(
             Achievements(
                 "/icons/yellow.png",
-                "<html><body style='text-align: center'>20<br/>new Features</html>",
-                achievement4
+                "",
+                achievement4,
+                "/icons/star2.png"
             )
         )
         achievementsMap.add(
             Achievements(
                 "/icons/orange.png",
-                "<html><body style='text-align: center'>25<br/>new Features</html>",
-                achievement5
+                "",
+                achievement5,
+                "/icons/cup.png"
             )
         )
         achievementsMap.add(
             Achievements(
                 "/icons/red.png",
-                "<html><body style='text-align: center'>50<br/>new Features</html>",
-                achievement6
+                "",
+                achievement6,
+                "/icons/crown.png"
             )
         )
     }
@@ -98,7 +103,7 @@ class AchievementsPanel(stats: RewardStatisticsService) {
         for ((iter, elem) in achievementsMap.withIndex()) {
             val nameLabel = JLabel(elem.name, SwingConstants.CENTER)
             nameLabel.font = Font("Calibri", Font.PLAIN, achievementTextSize)
-
+            val wPic: BufferedImage = ImageIO.read(this.javaClass.getResource(achievementsMap[iter].emptyIcon))
             iconsMap.add(JLabel())
             iconsMap[iter].icon = ImageIcon(wPic)
             y = diff
@@ -124,16 +129,17 @@ class AchievementsPanel(stats: RewardStatisticsService) {
     }
 
     fun clearAchievements() {
-        wPic = ImageIO.read(this.javaClass.getResource("/icons/empty.png"))
         for ((iter, _) in achievementsMap.withIndex()) {
+            val wPic: BufferedImage = ImageIO.read(this.javaClass.getResource(achievementsMap[iter].emptyIcon))
             iconsMap[iter].icon = ImageIcon(wPic)
         }
     }
 
-    private class Achievements(newIcon: String, newName: String, stats: Int) {
+    private class Achievements(newIcon: String, newName: String, stats: Int, empty: String) {
         private val wPic: BufferedImage = ImageIO.read(this.javaClass.getResource(newIcon))
         var icon = ImageIcon(wPic)
         val name = newName
         val number = stats
+        val emptyIcon = empty
     }
 }
