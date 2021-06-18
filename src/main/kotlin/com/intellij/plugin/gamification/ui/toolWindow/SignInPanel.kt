@@ -54,7 +54,7 @@ class SignInPanel(private val f: () -> Unit) {
         btnLogin.addActionListener {
             try {
                 runBlocking {
-                    NetworkService.getInstance().signUp(txt.text, pswd.password.toString())
+                    NetworkService.getInstance().signIn(txt.text, pswd.password.toString())
                 }
                 f()
             } catch (e: ClientException) {
