@@ -4,9 +4,12 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.Splitter
 import com.intellij.plugin.gamification.services.network.ClientException
 import com.intellij.plugin.gamification.services.network.NetworkService
+import com.intellij.plugin.gamification.services.network.User
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.table.TableView
+import com.intellij.util.ui.ColumnInfo
+import com.intellij.util.ui.ListTableModel
 import kotlinx.coroutines.runBlocking
 import java.awt.BorderLayout
 import java.awt.GridBagConstraints
@@ -61,7 +64,32 @@ class SubscribePanel {
         gbc.gridy = 1
         subPanel.add(btnLogin, gbc)
 
-        val table = TableView<Any>()
+        val network = NetworkService.getInstance()
+        val users = runBlocking { network.getAllUsers() }
+
+        val DISPLAY_NAME: ColumnInfo<User, String> = object :
+            ColumnInfo<User, String>("Name") {
+            override fun valueOf(item: User?): String {
+                return item?.userInfo?.displayName.toString()
+            }
+        }
+
+        val POINTS: ColumnInfo<User, String> = object :
+            ColumnInfo<User, String>("Points") {
+            override fun valueOf(item: User?): String {
+                return item?.userInfo?.progress.toString()
+            }
+        }
+        val LEVEL: ColumnInfo<User, String> = object :
+            ColumnInfo<User, String>("LVEL") {
+            override fun valueOf(item: User?): String {
+                return item?.userInfo?.level.toString()
+            }
+        }
+
+        val COLUMNS = arrayOf<ColumnInfo<*, *>>(DISPLAY_NAME, POINTS, LEVEL)
+
+        val table = TableView(ListTableModel(COLUMNS, users, 0))
         table.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
         val tablePanel = JPanel(BorderLayout())
         tablePanel.add(ScrollPaneFactory.createScrollPane(table), BorderLayout.CENTER)
