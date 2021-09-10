@@ -1,8 +1,10 @@
 package com.intellij.gamify.server
 
-import com.intellij.gamify.server.entities.UserInfo
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.LoggerContext
+import com.intellij.gamify.server.entities.shared.UserInfo
 import com.intellij.gamify.server.repository.GamifyRepository
-import com.intellij.gamify.server.repository.InMemoryGamifyRepository
+import com.intellij.gamify.server.repository.MongoImplRepository
 import com.intellij.gamify.server.routes.installHashedAuthentication
 import com.intellij.gamify.server.routes.registerBasicRoutes
 import com.intellij.gamify.server.routes.registerNotificationRoutes
@@ -14,26 +16,32 @@ import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
 import io.ktor.features.StatusPages
-import io.ktor.gson.gson
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.routing
+import io.ktor.serialization.json
 import io.ktor.util.error
+import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 
-private const val ADD_PREDEFINED_USERS = true
+private const val ADD_PREDEFINED_USERS = false
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("Unused")
 fun Application.module() {
-    val repository: GamifyRepository = InMemoryGamifyRepository().apply {
+    configureLogging()
+
+    val repository: GamifyRepository = MongoImplRepository().apply {
         if (ADD_PREDEFINED_USERS) {
-            addPredefinedUser("kirill", 1)
-            addPredefinedUser("katya", 2)
-            addPredefinedUser("vitaliy", 3)
-            addPredefinedUser("alexey", 4)
+            runBlocking {
+                addPredefinedUser("kirill", 1)
+                addPredefinedUser("katya", 2)
+                addPredefinedUser("vitaliy", 3)
+                addPredefinedUser("alexey", 4)
+            }
         }
     }
 
@@ -46,9 +54,7 @@ fun Application.module() {
         }
     }
     install(ContentNegotiation) {
-        gson {
-            setPrettyPrinting()
-        }
+        json()
     }
 
     installHashedAuthentication(repository)
@@ -62,7 +68,13 @@ fun Application.module() {
     registerNotificationRoutes()
 }
 
-fun GamifyRepository.addPredefinedUser(name: String, level: Int): GamifyRepository {
+private fun configureLogging() {
+    val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+    val rootLogger = loggerContext.getLogger("org.mongodb.driver")
+    rootLogger.level = Level.OFF
+}
+
+suspend fun GamifyRepository.addPredefinedUser(name: String, level: Int): GamifyRepository {
     val credential = UserPasswordCredential(name, name)
     createUser(credential)
     authenticate(credential)!!.updateUserInfo(UserInfo(name.capitalize(), level))
