@@ -34,7 +34,7 @@ allprojects {
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
     implementation("io.ktor:ktor-client-core:1.5.4")
-    implementation("io.ktor:ktor-client-cio:1.5.4")
+    implementation("io.ktor:ktor-client-cio:2.0.2")
     implementation("io.ktor:ktor-client-java:1.5.4")
     implementation("io.ktor:ktor-client-gson:1.5.4")
     implementation("io.ktor:ktor-client-auth:1.5.4")
